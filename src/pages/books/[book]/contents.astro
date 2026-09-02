@@ -16,15 +16,47 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
   <section class="contents shell">
     <nav class="breadcrumbs" aria-label="麵包屑"><a href={`${base}/books/${book.slug}/`}>{book.title}</a><span>/</span><span aria-current="page">目錄</span></nav>
     <header><p class="eyebrow">TABLE OF CONTENTS</p><h1>目錄</h1><p>{units.length} 個閱讀單元</p></header>
+    <div class="contents-search">
+      <label for="contents-query">搜尋本書目錄</label>
+      <input id="contents-query" type="search" placeholder="章名、Part 或關鍵字" autocomplete="off" />
+      <p id="contents-results" role="status" aria-live="polite">顯示全部 {units.length} 個閱讀單元</p>
+    </div>
     {groups.map(([part, items]) => (
-      <section class="contents-group">
+      <section class="contents-group" data-contents-group>
         <h2>{part}</h2>
         <ol>
           {items?.map((unit) => (
-            <li><a href={`${base}/books/${book.slug}/read/${unit.slug}/`}><span>{unit.label}</span><strong>{unit.title}</strong><small>{unit.minutes} 分鐘</small></a></li>
+            <li data-contents-item><a href={`${base}/books/${book.slug}/read/${unit.slug}/`} data-unit={unit.slug}><span>{unit.label}</span><strong>{unit.title}</strong><small>{unit.minutes} 分鐘</small></a></li>
           ))}
         </ol>
       </section>
     ))}
   </section>
+  <script>
+    const section = document.querySelector<HTMLElement>(".contents");
+    const input = document.querySelector<HTMLInputElement>("#contents-query");
+    const status = document.querySelector<HTMLElement>("#contents-results");
+    const items = [...document.querySelectorAll<HTMLElement>("[data-contents-item]")];
+    if (section && input && status) {
+      const bookSlug = location.pathname.match(/\/books\/([^/]+)/)?.[1];
+      try {
+        const saved = bookSlug ? JSON.parse(localStorage.getItem(`oceanai-reading:${bookSlug}`) ?? "null") as { unit?: string } | null : null;
+        const current = saved?.unit ? document.querySelector<HTMLAnchorElement>(`[data-unit="${CSS.escape(saved.unit)}"]`) : null;
+        if (current) { current.setAttribute("aria-current", "page"); current.dataset.currentLabel = "上次閱讀"; }
+      } catch {}
+      input.addEventListener("input", () => {
+        const query = input.value.trim().toLocaleLowerCase();
+        let visible = 0;
+        items.forEach((item) => {
+          const matches = !query || item.textContent?.toLocaleLowerCase().includes(query);
+          item.hidden = !matches;
+          if (matches) visible += 1;
+        });
+        document.querySelectorAll<HTMLElement>("[data-contents-group]").forEach((group) => {
+          group.hidden = !group.querySelector("[data-contents-item]:not([hidden])");
+        });
+        status.textContent = query ? `找到 ${visible} 個閱讀單元` : `顯示全部 ${visible} 個閱讀單元`;
+      });
+    }
+  </script>
 </BaseLayout>

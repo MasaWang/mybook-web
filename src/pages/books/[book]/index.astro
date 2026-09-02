@@ -12,8 +12,21 @@ const units = getBookUnits(book.slug);
 const first = units[0];
 const sourceRevision = getSourceRevision(book.slug);
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const bookUrl = new URL(`${base}/books/${book.slug}/`, Astro.site).href;
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "Book",
+  name: book.title,
+  alternateName: book.subtitle,
+  description: book.description,
+  author: { "@type": "Organization", name: book.author },
+  inLanguage: ["en", "zh-Hant"],
+  bookEdition: book.publication.version,
+  dateModified: book.publication.updated,
+  url: bookUrl,
+};
 ---
-<BaseLayout title={`${book.title}｜OceanAI Books`} description={book.description}>
+<BaseLayout title={`${book.title}｜OceanAI Books`} description={book.description} structuredData={structuredData}>
   <section class="book-hero shell">
     <div>
       <p class="eyebrow">OCEANAI BOOK · {book.publication.statusLabel}</p>

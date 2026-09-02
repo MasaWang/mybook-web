@@ -42,6 +42,14 @@ for (const path of bilingualReaders) {
   }
 }
 
+for (const path of htmlFiles.filter((path) => path.includes(`${join("read", "")}`))) {
+  const html = readFileSync(path, "utf8");
+  if (!html.includes('"@type":"Chapter"')) failures.push(`${relative(outputRoot, path)}: missing Chapter JSON-LD`);
+  if (!html.includes('"@type":"BreadcrumbList"')) failures.push(`${relative(outputRoot, path)}: missing BreadcrumbList JSON-LD`);
+}
+
+if (!htmlFiles.some((path) => readFileSync(path, "utf8").includes('property="og:image"'))) failures.push("Missing social preview metadata");
+
 if (bilingualReaders.length === 0) failures.push("No bilingual reader output was generated");
 
 if (failures.length) {

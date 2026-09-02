@@ -1,6 +1,6 @@
 # OceanAI Web Book
 
-OceanAI 的 Markdown-first 靜態數位出版網站。以書籍 manifest 驅動首頁、目錄、逐章閱讀與 `EN | 繁中 | EN + 繁中` 三態閱讀，並提供響應式書籍目錄、閱讀位置保存與繼續閱讀。
+OceanAI 的 Markdown-first 靜態數位出版網站。以書籍 manifest 驅動首頁、目錄、逐章閱讀與 `EN | 繁中 | EN + 繁中` 三態閱讀，並提供響應式書籍目錄、目錄搜尋、閱讀位置保存、繼續閱讀及出版型 SEO metadata。
 
 公開網站：[https://masawang.github.io/mybook-web/](https://masawang.github.io/mybook-web/)
 

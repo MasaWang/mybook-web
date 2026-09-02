@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title description">
+  <title id="title">OceanAI Books</title>
+  <desc id="description">OceanAI 長篇數位出版書庫</desc>
+  <rect width="1200" height="630" fill="#f4f3ee"/>
+  <path d="M0 505C220 430 385 570 610 495s390-25 590 45v90H0Z" fill="#dce7e2"/>
+  <text x="92" y="160" fill="#164b45" font-family="Arial, sans-serif" font-size="26" font-weight="700" letter-spacing="5">OCEANAI BOOKS</text>
+  <text x="88" y="325" fill="#18201d" font-family="Georgia, serif" font-size="92">思想，持續生長。</text>
+  <text x="94" y="405" fill="#59625d" font-family="Arial, sans-serif" font-size="30">Long-form · Bilingual · Continuous Publishing</text>
+</svg>
