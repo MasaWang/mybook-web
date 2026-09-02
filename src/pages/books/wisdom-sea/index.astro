@@ -1,0 +1,29 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import { getBook } from "../../../lib/book";
+const units = getBook();
+const first = units[0];
+---
+<BaseLayout title="智慧之海｜OceanAI Books" description="《智慧之海》探討智慧、系統、人機關係、社會與文明的演進。">
+  <section class="book-hero shell">
+    <div>
+      <p class="eyebrow">OCEANAI BOOK 01 · 正式書稿</p>
+      <h1>智慧之海</h1>
+      <p class="book-subtitle">從個體智慧、系統架構到共智文明的思想航程</p>
+    </div>
+    <aside class="book-meta" aria-label="書籍資訊">
+      <p><span>語言</span>繁體中文</p>
+      <p><span>結構</span>六部</p>
+      <p><span>閱讀單元</span>{units.length}</p>
+      <p><span>來源</span>MYBOOK</p>
+    </aside>
+  </section>
+  <section class="book-actions shell" aria-label="開始閱讀">
+    <a class="primary-link" href={`/books/wisdom-sea/read/${first.slug}/`}>開始閱讀 <span>→</span></a>
+    <a class="secondary-link" href="/books/wisdom-sea/contents/">查看完整目錄</a>
+  </section>
+  <section class="book-statement shell">
+    <p class="eyebrow">ABOUT THIS BOOK</p>
+    <p>智慧不是孤立能力的累積，而是關係、責任、信任與系統協同逐步形成的秩序。</p>
+  </section>
+</BaseLayout>

@@ -1,0 +1,36 @@
+---
+import "../styles/global.css";
+interface Props { title: string; description: string; }
+const { title, description } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+---
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta property="og:type" content="book" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <title>{title}</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">跳至主要內容</a>
+    <header class="site-header shell">
+      <a class="brand" href="/">OCEANAI <span>BOOKS</span></a>
+      <nav aria-label="主要導覽">
+        <a href="/books/wisdom-sea/">智慧之海</a>
+        <a href="/books/wisdom-sea/contents/">目錄</a>
+        <span class="locale" aria-label="目前語言">繁中</span>
+      </nav>
+    </header>
+    <main id="main-content"><slot /></main>
+    <footer class="site-footer shell">
+      <p>OceanAI 是系統級智慧架構。</p>
+      <p>內容來源：MYBOOK · Markdown-first publishing</p>
+    </footer>
+  </body>
+</html>
