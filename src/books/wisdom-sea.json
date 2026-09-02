@@ -1,0 +1,21 @@
+{
+  "slug": "wisdom-sea",
+  "title": "智慧之海",
+  "subtitle": "從個體智慧、系統架構到共智文明的思想航程",
+  "author": "OceanAI Editorial Team",
+  "description": "《智慧之海》探討智慧、系統、人機關係、社會與文明的演進。",
+  "languageLabel": "English / 繁體中文",
+  "partCount": 6,
+  "defaultReadingMode": "bilingual",
+  "publication": {
+    "status": "Revising",
+    "statusLabel": "持續修訂中",
+    "version": "v1.9a–R2",
+    "updated": "2026-09-02"
+  },
+  "source": {
+    "repository": "https://github.com/MasaWang/MYBOOK.git",
+    "ref": "codex/zhihui-zhihai-editorial-cleanup",
+    "directory": "智慧之海"
+  }
+}

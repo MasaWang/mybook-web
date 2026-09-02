@@ -1,0 +1,39 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import { getBookManifests, getBookUnits, type BookManifest } from "../../../lib/book";
+
+export function getStaticPaths() {
+  return getBookManifests().map((book) => ({ params: { book: book.slug }, props: { book } }));
+}
+
+interface Props { book: BookManifest }
+const { book } = Astro.props;
+const units = getBookUnits(book.slug);
+const first = units[0];
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+---
+<BaseLayout title={`${book.title}｜OceanAI Books`} description={book.description}>
+  <section class="book-hero shell">
+    <div>
+      <p class="eyebrow">OCEANAI BOOK · {book.publication.statusLabel}</p>
+      <h1>{book.title}</h1>
+      <p class="book-subtitle">{book.subtitle}</p>
+      <p class="book-author">{book.author}</p>
+    </div>
+    <aside class="book-meta" aria-label="書籍資訊">
+      <p><span>語言</span>{book.languageLabel}</p>
+      <p><span>結構</span>{book.partCount} 部</p>
+      <p><span>閱讀單元</span>{units.length}</p>
+      <p><span>版本</span>{book.publication.version}</p>
+      <p><span>更新</span><time datetime={book.publication.updated}>{book.publication.updated}</time></p>
+    </aside>
+  </section>
+  <section class="book-actions shell" aria-label="開始閱讀">
+    <a class="primary-link" href={`${base}/books/${book.slug}/read/${first.slug}/`}>開始閱讀 <span>→</span></a>
+    <a class="secondary-link" href={`${base}/books/${book.slug}/contents/`}>查看完整目錄</a>
+  </section>
+  <section class="book-statement shell">
+    <p class="eyebrow">ABOUT THIS BOOK</p>
+    <p>智慧不是孤立能力的累積，而是關係、責任、信任與系統協同逐步形成的秩序。</p>
+  </section>
+</BaseLayout>

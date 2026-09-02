@@ -5,7 +5,7 @@
   "scripts": {
     "sync:manuscript": "node scripts/sync-manuscript.mjs",
     "dev": "npm run sync:manuscript && astro dev",
-    "build": "npm run sync:manuscript && astro check && astro build",
+    "build": "npm run sync:manuscript && astro check && astro build && node scripts/validate-publication.mjs",
     "preview": "astro preview",
     "check": "astro check"
   },

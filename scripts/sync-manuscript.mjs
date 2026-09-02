@@ -1,28 +1,35 @@
 import { execFileSync } from "node:child_process";
-import { cpSync, existsSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-const repository = process.env.MYBOOK_REPOSITORY ?? "https://github.com/MasaWang/MYBOOK.git";
-const ref = process.env.MYBOOK_REF ?? "codex/zhihui-zhihai-editorial-cleanup";
-const destination = new URL("../src/content-source/wisdom-sea", import.meta.url);
+const booksDirectory = new URL("../src/books/", import.meta.url);
+const contentDirectory = new URL("../src/content-source/", import.meta.url);
 const stamp = new URL("../src/content-source/source.json", import.meta.url);
+const manifests = readdirSync(booksDirectory)
+  .filter((name) => name.endsWith(".json"))
+  .map((name) => JSON.parse(readFileSync(new URL(name, booksDirectory), "utf8")));
+const revisions = [];
 
-const temporary = mkdtempSync(join(tmpdir(), "oceanai-mybook-"));
+rmSync(contentDirectory, { recursive: true, force: true });
 
-try {
-  execFileSync("git", ["clone", "--depth", "1", "--branch", ref, repository, temporary], {
-    stdio: "inherit",
-  });
-  const source = join(temporary, "智慧之海");
-  if (!existsSync(source)) throw new Error("MYBOOK 中找不到「智慧之海」目錄。 ");
+for (const manifest of manifests) {
+  const temporary = mkdtempSync(join(tmpdir(), `oceanai-${manifest.slug}-`));
+  const repository = process.env.MYBOOK_REPOSITORY ?? manifest.source.repository;
+  const ref = process.env.MYBOOK_REF ?? manifest.source.ref;
 
-  rmSync(destination, { recursive: true, force: true });
-  cpSync(source, destination, { recursive: true });
+  try {
+    execFileSync("git", ["clone", "--depth", "1", "--branch", ref, repository, temporary], { stdio: "inherit" });
+    const source = join(temporary, manifest.source.directory);
+    if (!existsSync(source)) throw new Error(`${manifest.slug} 找不到來源目錄：${manifest.source.directory}`);
+    cpSync(source, new URL(`${manifest.slug}/`, contentDirectory), { recursive: true });
 
-  const revision = execFileSync("git", ["-C", temporary, "rev-parse", "HEAD"], { encoding: "utf8" }).trim();
-  writeFileSync(stamp, `${JSON.stringify({ repository, ref, revision }, null, 2)}\n`);
-  process.stdout.write(`Synced 智慧之海 at ${revision.slice(0, 12)}\n`);
-} finally {
-  rmSync(temporary, { recursive: true, force: true });
+    const revision = execFileSync("git", ["-C", temporary, "rev-parse", "HEAD"], { encoding: "utf8" }).trim();
+    revisions.push({ book: manifest.slug, repository, ref, revision });
+    process.stdout.write(`Synced ${manifest.title} at ${revision.slice(0, 12)}\n`);
+  } finally {
+    rmSync(temporary, { recursive: true, force: true });
+  }
 }
+
+writeFileSync(stamp, `${JSON.stringify({ books: revisions }, null, 2)}\n`);

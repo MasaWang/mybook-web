@@ -1,12 +1,21 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { getBookManifests } from "../lib/book";
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const books = getBookManifests();
 ---
 <BaseLayout title="OceanAI Books" description="OceanAI 的開放式數位書庫。">
   <section class="landing shell">
     <p class="eyebrow">OCEANAI · DIGITAL LIBRARY</p>
     <h1>思想，需要一個<br />可以持續生長的容器。</h1>
     <p class="lede">以 Markdown 為內容核心，為長篇閱讀、版本演進與雙語出版而建立。</p>
-    <a class="primary-link" href={`${base}/books/wisdom-sea/`}>閱讀《智慧之海》 <span aria-hidden="true">→</span></a>
+    <div class="library-list" aria-label="書庫">
+      {books.map((book) => (
+        <a class="primary-link" href={`${base}/books/${book.slug}/`}>
+          <span>閱讀《{book.title}》<small>{book.author}</small></span>
+          <span aria-hidden="true">→</span>
+        </a>
+      ))}
+    </div>
   </section>
 </BaseLayout>

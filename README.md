@@ -1,6 +1,6 @@
 # OceanAI Web Book
 
-OceanAI 的 Markdown-first 靜態數位出版網站。第一階段提供《智慧之海》的書籍首頁、目錄與逐章閱讀。
+OceanAI 的 Markdown-first 靜態數位出版網站。以書籍 manifest 驅動首頁、目錄、逐章閱讀與 `EN | 繁中 | EN + 繁中` 三態閱讀。
 
 公開網站：[https://masawang.github.io/mybook-web/](https://masawang.github.io/mybook-web/)
 
@@ -11,7 +11,13 @@ npm install
 npm run dev
 ```
 
-`npm run dev` 與 `npm run build` 會先從 [`MasaWang/MYBOOK`](https://github.com/MasaWang/MYBOOK) 的定稿分支同步《智慧之海》來源檔案；同步內容不提交至本 repository。
+`npm run dev` 與 `npm run build` 會依 `src/books/*.json` 的設定，從 [`MasaWang/MYBOOK`](https://github.com/MasaWang/MYBOOK) 同步書稿；同步內容不提交至本 repository，MYBOOK 保持為權威內容源。
+
+## Add a book
+
+在 `src/books/` 新增一份 manifest，提供書籍 metadata 與 `source.repository`、`source.ref`、`source.directory`。若新書沿用現有 Markdown 結構，不需新增頁面程式；同步器與通用路由會自動產生書籍首頁、目錄及閱讀頁。
+
+建置完成後，`scripts/validate-publication.mjs` 會檢查公開 HTML，避免已知術語錯字、編輯檔名與雙語控制缺漏進入部署版本。
 
 ## Build
 

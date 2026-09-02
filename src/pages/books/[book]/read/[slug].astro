@@ -1,0 +1,64 @@
+---
+import BaseLayout from "../../../../layouts/BaseLayout.astro";
+import { getBookManifests, getBookUnits, type BookManifest, type ReadingUnit } from "../../../../lib/book";
+
+export function getStaticPaths() {
+  return getBookManifests().flatMap((book) => {
+    const units = getBookUnits(book.slug);
+    return units.map((unit, index) => ({
+      params: { book: book.slug, slug: unit.slug },
+      props: { book, unit, previous: units[index - 1], next: units[index + 1], index, total: units.length },
+    }));
+  });
+}
+
+interface Props { book: BookManifest; unit: ReadingUnit; previous?: ReadingUnit; next?: ReadingUnit; index: number; total: number }
+const { book, unit, previous, next, index, total } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+---
+<BaseLayout title={`${unit.title}｜${book.title}`} description={`${book.title} ${unit.part}：${unit.title}`}>
+  <article class="reader shell" data-book={book.slug} data-unit={unit.slug} data-default-mode={book.defaultReadingMode}>
+    <nav class="breadcrumbs" aria-label="麵包屑"><a href={`${base}/books/${book.slug}/`}>{book.title}</a><span>/</span><a href={`${base}/books/${book.slug}/contents/`}>目錄</a><span>/</span><span aria-current="page">{unit.title}</span></nav>
+    <header class="reader-header">
+      <p class="eyebrow">{unit.part} · 約 {unit.minutes} 分鐘</p>
+      <h1>{unit.title}</h1>
+      <p class="publication-note"><span>{book.publication.status}</span> · Updated <time datetime={book.publication.updated}>{book.publication.updated}</time></p>
+    </header>
+    <div class="reading-progress" aria-label={`閱讀單元 ${index + 1}，共 ${total} 個`}><span style={`width:${((index + 1) / total) * 100}%`}></span></div>
+    {unit.hasBilingualContent && (
+      <nav class="language-switcher" aria-label="閱讀語言">
+        <button type="button" data-mode="en" aria-pressed="false">EN</button>
+        <button type="button" data-mode="zh" aria-pressed="false">繁中</button>
+        <button type="button" data-mode="bilingual" aria-pressed="true">EN + 繁中</button>
+      </nav>
+    )}
+    <div class="prose">
+      {unit.content.introHtml && <section class="prose-intro" set:html={unit.content.introHtml} />}
+      {unit.content.enHtml && <section lang="en" data-language="en" set:html={unit.content.enHtml} />}
+      {unit.content.zhHtml && <section lang="zh-Hant" data-language="zh" set:html={unit.content.zhHtml} />}
+    </div>
+    <nav class="chapter-nav" aria-label="章節導覽">
+      <div>{previous && <a href={`${base}/books/${book.slug}/read/${previous.slug}/`}><small>← 上一篇</small><strong>{previous.title}</strong></a>}</div>
+      <div>{next && <a href={`${base}/books/${book.slug}/read/${next.slug}/`}><small>下一篇 →</small><strong>{next.title}</strong></a>}</div>
+    </nav>
+  </article>
+  <script>
+    const article = document.querySelector<HTMLElement>("[data-book][data-unit]");
+    const buttons = [...document.querySelectorAll<HTMLButtonElement>("[data-mode]")];
+    if (article) {
+      const positionKey = `oceanai-reading:${article.dataset.book}`;
+      const modeKey = `oceanai-reading-mode:${article.dataset.book}`;
+      const supportedModes = new Set(["en", "zh", "bilingual"]);
+      const savedMode = localStorage.getItem(modeKey);
+      const mode = savedMode && supportedModes.has(savedMode) ? savedMode : article.dataset.defaultMode ?? "bilingual";
+      const setMode = (nextMode: string) => {
+        document.documentElement.dataset.readingMode = nextMode;
+        buttons.forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.mode === nextMode)));
+        localStorage.setItem(modeKey, nextMode);
+      };
+      setMode(mode);
+      buttons.forEach((button) => button.addEventListener("click", () => setMode(button.dataset.mode ?? "bilingual")));
+      localStorage.setItem(positionKey, JSON.stringify({ unit: article.dataset.unit, path: location.pathname, updatedAt: Date.now() }));
+    }
+  </script>
+</BaseLayout>
