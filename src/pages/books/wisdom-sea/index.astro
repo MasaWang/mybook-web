@@ -3,6 +3,7 @@ import BaseLayout from "../../../layouts/BaseLayout.astro";
 import { getBook } from "../../../lib/book";
 const units = getBook();
 const first = units[0];
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 ---
 <BaseLayout title="智慧之海｜OceanAI Books" description="《智慧之海》探討智慧、系統、人機關係、社會與文明的演進。">
   <section class="book-hero shell">
@@ -19,8 +20,8 @@ const first = units[0];
     </aside>
   </section>
   <section class="book-actions shell" aria-label="開始閱讀">
-    <a class="primary-link" href={`/books/wisdom-sea/read/${first.slug}/`}>開始閱讀 <span>→</span></a>
-    <a class="secondary-link" href="/books/wisdom-sea/contents/">查看完整目錄</a>
+    <a class="primary-link" href={`${base}/books/wisdom-sea/read/${first.slug}/`}>開始閱讀 <span>→</span></a>
+    <a class="secondary-link" href={`${base}/books/wisdom-sea/contents/`}>查看完整目錄</a>
   </section>
   <section class="book-statement shell">
     <p class="eyebrow">ABOUT THIS BOOK</p>

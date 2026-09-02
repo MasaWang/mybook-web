@@ -3,6 +3,7 @@ import "../styles/global.css";
 interface Props { title: string; description: string; }
 const { title, description } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site);
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 ---
 <!doctype html>
 <html lang="zh-Hant">
@@ -20,10 +21,10 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
   <body>
     <a class="skip-link" href="#main-content">跳至主要內容</a>
     <header class="site-header shell">
-      <a class="brand" href="/">OCEANAI <span>BOOKS</span></a>
+      <a class="brand" href={`${base}/`}>OCEANAI <span>BOOKS</span></a>
       <nav aria-label="主要導覽">
-        <a href="/books/wisdom-sea/">智慧之海</a>
-        <a href="/books/wisdom-sea/contents/">目錄</a>
+        <a href={`${base}/books/wisdom-sea/`}>智慧之海</a>
+        <a href={`${base}/books/wisdom-sea/contents/`}>目錄</a>
         <span class="locale" aria-label="目前語言">繁中</span>
       </nav>
     </header>
