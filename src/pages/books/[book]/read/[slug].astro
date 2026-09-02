@@ -42,13 +42,15 @@ const alternateLanguages = unit.hasBilingualContent ? [
   { hrefLang: "zh-Hant", href: `${chapterUrl}?lang=zh` },
   { hrefLang: "x-default", href: chapterUrl },
 ] : [];
+const [displayTitleEn, displayTitleZh] = unit.title.split("｜").map((title) => title.trim());
+const compactTitle = displayTitleEn.match(/^Chapter\s+\d+/)?.[0] ?? unit.label ?? displayTitleEn;
 ---
 <BaseLayout title={`${unit.title}｜${book.title}`} description={`${book.title} ${unit.part}：${unit.title}`} structuredData={structuredData} alternateLanguages={alternateLanguages}>
   <article class="reader shell" data-book={book.slug} data-unit={unit.slug} data-default-mode={book.defaultReadingMode}>
-    <nav class="breadcrumbs" aria-label="麵包屑"><a href={`${base}/books/${book.slug}/`}>{book.title}</a><span>/</span><a href={`${base}/books/${book.slug}/contents/`}>目錄</a><span>/</span><span aria-current="page">{unit.title}</span></nav>
+    <nav class="breadcrumbs" aria-label="麵包屑"><a href={`${base}/books/${book.slug}/`}>{book.title}</a><span>/</span><a href={`${base}/books/${book.slug}/contents/`}>目錄</a><span>/</span><span class="breadcrumb-title" aria-current="page"><span class="breadcrumb-title-full">{unit.title}</span><span class="breadcrumb-title-compact">{compactTitle}</span></span></nav>
     <header class="reader-header">
       <p class="eyebrow">{unit.part} · 約 {unit.minutes} 分鐘</p>
-      <h1>{unit.title}</h1>
+      <h1 class:list={{ "bilingual-title": displayTitleZh }}><span>{displayTitleEn}</span>{displayTitleZh && <span lang="zh-Hant">{displayTitleZh}</span>}</h1>
       <p class="publication-note"><span>{book.publication.status}</span> · Updated <time datetime={book.publication.updated}>{book.publication.updated}</time></p>
     </header>
     <div class="reading-progress" aria-label={`閱讀單元 ${index + 1}，共 ${total} 個`}><span style={`width:${((index + 1) / total) * 100}%`}></span></div>

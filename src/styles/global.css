@@ -30,10 +30,12 @@ a:focus-visible { outline: 3px solid var(--sea); outline-offset: 4px; }
 .eyebrow { color: var(--sea); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
 .landing { min-height: calc(100vh - 5rem); display: grid; align-content: center; padding-block: 6rem; }
 .landing h1 { max-width: 12ch; margin: 1rem 0 1.5rem; font-family: "Noto Serif TC", "Songti TC", serif; font-size: clamp(3rem, 8vw, 7.5rem); font-weight: 500; letter-spacing: -.05em; line-height: 1.06; }
+.landing h1 span { display: block; }
 .lede { max-width: 38rem; color: var(--muted); font-family: "Noto Serif TC", "Songti TC", serif; font-size: clamp(1.1rem, 2vw, 1.45rem); }
 .primary-link, .secondary-link { display: flex; width: min(100%, 23rem); justify-content: space-between; align-items: center; margin-top: 2.5rem; padding: 1rem 1.2rem; border: 1px solid var(--sea); text-decoration: none; }
 .primary-link { color: white; background: var(--sea); }
 .primary-link small { display: block; margin-top: .15rem; color: var(--sea-soft); font-size: .7rem; font-weight: 400; }
+.primary-destination { font-size: .72rem; white-space: nowrap; }
 .library-list { display: grid; gap: 1rem; }
 .library-actions { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: -.35rem; font-size: .82rem; }
 .secondary-link { margin-top: 1rem; }
@@ -68,6 +70,10 @@ a:focus-visible { outline: 3px solid var(--sea); outline-offset: 4px; }
 .reader { max-width: 76rem; }
 .reader-header { padding-block: clamp(4rem, 9vw, 8rem); }
 .reader h1 { max-width: 20ch; font-size: clamp(2.5rem, 5vw, 4.75rem); line-height: 1.12; }
+.reader h1.bilingual-title { display: grid; gap: .15em; max-width: 18ch; font-size: clamp(2.4rem, 4.25vw, 4rem); }
+.reader h1.bilingual-title > span { display: block; }
+.reader h1.bilingual-title > span[lang] { color: #33423d; font-size: .72em; line-height: 1.2; }
+.breadcrumb-title-compact { display: none; }
 .publication-note { color: var(--muted); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .72rem; }
 .publication-note span { color: var(--sea); font-weight: 700; text-transform: uppercase; }
 .reading-progress { height: 2px; background: var(--line); }
@@ -116,8 +122,25 @@ html[data-reading-mode="en"] [data-language="zh"], html[data-reading-mode="zh"] 
   .site-header nav { width: 100%; justify-content: space-between; gap: .7rem; }
   .book-hero { grid-template-columns: 1fr; gap: 2rem; }
   .book-actions, .site-footer { flex-direction: column; }
-  .contents-group a { grid-template-columns: 1fr auto; }
-  .contents-group a span { grid-column: 1 / -1; }
+  .landing { min-height: auto; padding-block: 4.5rem; }
+  .landing h1 { max-width: none; font-size: 2.2rem; line-height: 1.08; }
+  .landing h1 span:first-child { white-space: nowrap; }
+  .primary-link { width: 100%; }
+  .primary-destination { font-size: .68rem; }
+  .contents > header { padding-block: 3rem; }
+  .contents-search { padding: 1rem; }
+  .contents-group { margin-top: 3rem; }
+  .contents-group a { grid-template-columns: 1fr; gap: .35rem; }
+  .contents-group a span, .contents-group a strong, .contents-group a small { grid-column: 1; }
+  .contents-group a small { justify-self: start; }
+  .breadcrumb-title-full { display: none; }
+  .breadcrumb-title-compact { display: inline; }
+  .reader-header { padding-block: 2.75rem; }
+  .reader h1.bilingual-title { max-width: none; font-size: clamp(2.25rem, 10.5vw, 2.75rem); letter-spacing: -.035em; }
+  .reader h1.bilingual-title > span { text-wrap: balance; }
+  .language-switcher { margin-bottom: 0; }
+  .reader-toc { margin-top: 1.25rem; }
+  .prose { margin-top: 3rem; }
   .chapter-nav { grid-template-columns: 1fr; }
   .chapter-nav > div:last-child { text-align: left; }
 }
