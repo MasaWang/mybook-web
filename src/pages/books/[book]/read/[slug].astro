@@ -32,10 +32,22 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
         <button type="button" data-mode="bilingual" aria-pressed="true">EN + 繁中</button>
       </nav>
     )}
-    <div class="prose">
-      {unit.content.introHtml && <section class="prose-intro" set:html={unit.content.introHtml} />}
-      {unit.content.enHtml && <section lang="en" data-language="en" set:html={unit.content.enHtml} />}
-      {unit.content.zhHtml && <section lang="zh-Hant" data-language="zh" set:html={unit.content.zhHtml} />}
+    <div class="reading-layout">
+      <details class="reader-toc" open>
+        <summary>本書目錄</summary>
+        <nav aria-label="書籍目錄">
+          {getBookUnits(book.slug).map((item) => (
+            <a href={`${base}/books/${book.slug}/read/${item.slug}/`} aria-current={item.slug === unit.slug ? "page" : undefined}>
+              <small>{item.part}</small><span>{item.title}</span>
+            </a>
+          ))}
+        </nav>
+      </details>
+      <div class="prose">
+        {unit.content.introHtml && <section class="prose-intro" set:html={unit.content.introHtml} />}
+        {unit.content.enHtml && <section lang="en" data-language="en" set:html={unit.content.enHtml} />}
+        {unit.content.zhHtml && <section lang="zh-Hant" data-language="zh" set:html={unit.content.zhHtml} />}
+      </div>
     </div>
     <nav class="chapter-nav" aria-label="章節導覽">
       <div>{previous && <a href={`${base}/books/${book.slug}/read/${previous.slug}/`}><small>← 上一篇</small><strong>{previous.title}</strong></a>}</div>
@@ -58,7 +70,21 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
       };
       setMode(mode);
       buttons.forEach((button) => button.addEventListener("click", () => setMode(button.dataset.mode ?? "bilingual")));
-      localStorage.setItem(positionKey, JSON.stringify({ unit: article.dataset.unit, path: location.pathname, updatedAt: Date.now() }));
+      let savedPosition: { unit?: string; scrollY?: number } | undefined;
+      try { savedPosition = JSON.parse(localStorage.getItem(positionKey) ?? "null") ?? undefined; } catch {}
+      const savedScrollY = savedPosition?.scrollY;
+      if (savedPosition?.unit === article.dataset.unit && savedScrollY && !location.hash) scrollTo(0, savedScrollY);
+      let savePending = false;
+      const savePosition = () => {
+        localStorage.setItem(positionKey, JSON.stringify({ unit: article.dataset.unit, path: location.pathname, scrollY, updatedAt: Date.now() }));
+        savePending = false;
+      };
+      savePosition();
+      addEventListener("scroll", () => {
+        if (!savePending) { savePending = true; requestAnimationFrame(savePosition); }
+      }, { passive: true });
+      const toc = document.querySelector<HTMLDetailsElement>(".reader-toc");
+      if (toc && matchMedia("(max-width: 56rem)").matches) toc.open = false;
     }
   </script>
 </BaseLayout>

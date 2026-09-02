@@ -12,9 +12,14 @@ const books = getBookManifests();
     <div class="library-list" aria-label="書庫">
       {books.map((book) => (
         <a class="primary-link" href={`${base}/books/${book.slug}/`}>
-          <span>閱讀《{book.title}》<small>{book.author}</small></span>
+          <span>《{book.title}》<small>{book.author} · {book.publication.statusLabel}</small></span>
           <span aria-hidden="true">→</span>
         </a>
+        <div class="library-actions">
+          <a href={`${base}/books/${book.slug}/read/preface/`}>開始閱讀</a>
+          <a href={`${base}/books/${book.slug}/contents/`}>目錄</a>
+          <a href={`${base}/books/${book.slug}/read/preface/`} data-continue-book={book.slug} hidden>繼續閱讀</a>
+        </div>
       ))}
     </div>
   </section>

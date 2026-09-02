@@ -18,7 +18,7 @@ export type BookManifest = {
   partCount: number;
   defaultReadingMode: ReadingMode;
   publication: { status: string; statusLabel: string; version: string; updated: string };
-  source: { repository: string; ref: string; directory: string };
+  source: { repository: string; ref: string; revision?: string; directory: string };
 };
 
 export type ReadingUnit = {
@@ -31,8 +31,10 @@ export type ReadingUnit = {
   content: { introHtml: string; enHtml: string; zhHtml: string };
 };
 
+export type SourceRevision = { book: string; repository: string; ref: string; revision: string };
+
 const roman: Record<string, number> = { I: 1, II: 2, III: 3, IV: 4, V: 5, VI: 6 };
-const editorialEmoji = /[🧭📘📗🩵🩶💠🤝🏛🌌🜂☁️🌍🎨📚]/gu;
+const editorialEmoji = /\p{Extended_Pictographic}\uFE0F?/gu;
 
 export function getBookManifests(): BookManifest[] {
   return readdirSync(booksRoot)
@@ -43,6 +45,11 @@ export function getBookManifests(): BookManifest[] {
 
 export function getBookManifest(slug: string) {
   return getBookManifests().find((book) => book.slug === slug);
+}
+
+export function getSourceRevision(bookSlug: string): SourceRevision | undefined {
+  const source = JSON.parse(readFileSync(join(contentRoot, "source.json"), "utf8")) as { books: SourceRevision[] };
+  return source.books.find((book) => book.book === bookSlug);
 }
 
 function filesBelow(directory: string): string[] {
@@ -93,9 +100,13 @@ function splitLanguages(markdown: string) {
   let current: keyof typeof sections = "intro";
 
   for (const line of markdown.split("\n")) {
-    const marker = line.match(/^#{2,3}\s+(?:\*\*)?(EN|ZH)(?:\*\*)?\s*$/i)?.[1]?.toLowerCase();
-    if (marker === "en" || marker === "zh") {
-      current = marker;
+    const marker = line.match(/^#{2,3}\s+(?:\*\*)?(EN|ZH|English Version|Chinese Version)(?:\*\*)?\s*$/i)?.[1]?.toLowerCase();
+    if (marker === "en" || marker === "english version") {
+      current = "en";
+      continue;
+    }
+    if (marker === "zh" || marker === "chinese version") {
+      current = "zh";
       continue;
     }
     sections[current].push(line);
@@ -109,13 +120,43 @@ function splitLanguages(markdown: string) {
   };
 }
 
-function unitOrder(sourceRoot: string, path: string) {
-  const rel = relative(sourceRoot, path);
-  if (rel === "00_前言與目錄.md") return 0;
-  const partMatch = rel.match(/Part_([IVX]+)/);
-  const part = partMatch ? roman[partMatch[1]] ?? 99 : 99;
-  const chapter = Number(basename(path).match(/^(\d+)/)?.[1] ?? (rel.includes("Part_V_") ? 21 : 26));
-  return part * 100 + chapter + (basename(path).startsWith("00_") ? -0.5 : 0);
+function chapterNumberFromHeading(line: string) {
+  return Number(line.match(/^##\s+(?:\*\*)?(?:[^\p{L}\p{N}#*]+\s*)?Chapter\s+(\d+)\s*[·｜|]/iu)?.[1] ?? 0);
+}
+
+function splitCombinedPart(markdown: string) {
+  const lines = markdown.split("\n");
+  const starts = lines.flatMap((line, index) => {
+    const chapter = chapterNumberFromHeading(line);
+    return chapter ? [{ chapter, index }] : [];
+  });
+  const lastStart = new Map<number, number>();
+  for (const start of starts) lastStart.set(start.chapter, start.index);
+  const selected = [...lastStart].map(([chapter, index]) => ({ chapter, index })).sort((a, b) => a.index - b.index);
+  return selected.map((start, index) => ({
+    chapter: start.chapter,
+    markdown: lines.slice(
+      start.index,
+      lines.findIndex((line, lineIndex) => lineIndex > start.index && /^##\s/.test(line)) > start.index
+        ? lines.findIndex((line, lineIndex) => lineIndex > start.index && /^##\s/.test(line))
+        : selected[index + 1]?.index ?? lines.length,
+    ).join("\n"),
+  }));
+}
+
+function makeUnit(markdown: string, fallback: string, slug: string, part: string, label: string): ReadingUnit {
+  const displayMarkdown = prepareMarkdown(markdown);
+  const languages = splitLanguages(displayMarkdown);
+  const words = displayMarkdown.replace(/[#>*_`\[\]()|-]/g, "").length;
+  return {
+    slug,
+    title: firstHeading(markdown.replace(/^##/, "#"), fallback),
+    part,
+    label: cleanTitle(label),
+    minutes: Math.max(1, Math.ceil(words / 450)),
+    hasBilingualContent: languages.hasBilingualContent,
+    content: { introHtml: languages.introHtml, enHtml: languages.enHtml, zhHtml: languages.zhHtml },
+  };
 }
 
 function makeSlug(sourceRoot: string, path: string) {
@@ -137,23 +178,38 @@ function partLabel(sourceRoot: string, path: string) {
 
 export function getBookUnits(bookSlug: string): ReadingUnit[] {
   const sourceRoot = join(contentRoot, bookSlug);
-  return filesBelow(sourceRoot)
+  const candidates = filesBelow(sourceRoot)
     .filter((path) => !/[\\/]完整版\.md$/.test(path) && !/[\\/]README\.md$/.test(path))
-    .sort((a, b) => unitOrder(sourceRoot, a) - unitOrder(sourceRoot, b))
-    .map((sourcePath) => {
+    .flatMap((sourcePath) => {
       const markdown = readFileSync(sourcePath, "utf8");
-      const displayMarkdown = prepareMarkdown(markdown);
-      const languages = splitLanguages(displayMarkdown);
       const fallback = basename(sourcePath, ".md").replace(/^\d+_/, "").replace(/_/g, " ");
-      const words = displayMarkdown.replace(/[#>*_`\[\]()|-]/g, "").length;
-      return {
-        slug: makeSlug(sourceRoot, sourcePath),
-        title: firstHeading(markdown, fallback),
-        part: partLabel(sourceRoot, sourcePath),
-        label: cleanTitle(basename(sourcePath, ".md").replace(/^\d+_/, "")),
-        minutes: Math.max(1, Math.ceil(words / 450)),
-        hasBilingualContent: languages.hasBilingualContent,
-        content: { introHtml: languages.introHtml, enHtml: languages.enHtml, zhHtml: languages.zhHtml },
-      };
+      if (/^Part_[VIX]+_.+\.md$/.test(basename(sourcePath))) {
+        return splitCombinedPart(markdown).map(({ chapter, markdown: chapterMarkdown }) =>
+          makeUnit(
+            chapterMarkdown.replace(/^##/, "#"),
+            `Chapter ${chapter}`,
+            `chapter-${chapter}`,
+            chapter <= 24 ? "Part V · 未來與延續篇" : "Part VI · 哲學核心模組",
+            `Chapter ${chapter}`,
+          ),
+        );
+      }
+      return [makeUnit(
+        markdown,
+        fallback,
+        makeSlug(sourceRoot, sourcePath),
+        partLabel(sourceRoot, sourcePath),
+        basename(sourcePath, ".md").replace(/^\d+_/, ""),
+      )];
     });
+  const unique = new Map<string, ReadingUnit>();
+  for (const unit of candidates) {
+    const existing = unique.get(unit.slug);
+    if (!existing || unit.minutes > existing.minutes) unique.set(unit.slug, unit);
+  }
+  return [...unique.values()].sort((a, b) => {
+      const partStarts: Record<number, number> = { 1: 0.5, 2: 5.5, 3: 10.5, 4: 15.5, 5: 20.5, 6: 24.5 };
+      const number = (unit: ReadingUnit) => unit.slug === "preface" ? 0 : unit.slug.startsWith("part-") ? partStarts[Number(unit.slug.slice(5))] ?? 99 : Number(unit.slug.slice(8));
+      return number(a) - number(b);
+  });
 }

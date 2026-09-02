@@ -24,6 +24,10 @@ for (const path of htmlFiles) {
   for (const rule of forbidden) {
     if (rule.pattern.test(html)) failures.push(`${relative(outputRoot, path)}: ${rule.label}`);
   }
+  if (path.endsWith(join("contents", "index.html"))) {
+    const readerLinks = [...html.matchAll(/href="[^"]+\/read\/([^/]+)\/"/g)].map((match) => match[1]);
+    if (new Set(readerLinks).size !== readerLinks.length) failures.push(`${relative(outputRoot, path)}: duplicate reader links`);
+  }
 }
 
 const bilingualReaders = htmlFiles.filter((path) => {

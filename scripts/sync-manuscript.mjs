@@ -25,6 +25,9 @@ for (const manifest of manifests) {
     cpSync(source, new URL(`${manifest.slug}/`, contentDirectory), { recursive: true });
 
     const revision = execFileSync("git", ["-C", temporary, "rev-parse", "HEAD"], { encoding: "utf8" }).trim();
+    if (manifest.source.revision && revision !== manifest.source.revision) {
+      throw new Error(`${manifest.slug} 來源 revision 不符：預期 ${manifest.source.revision}，實際 ${revision}`);
+    }
     revisions.push({ book: manifest.slug, repository, ref, revision });
     process.stdout.write(`Synced ${manifest.title} at ${revision.slice(0, 12)}\n`);
   } finally {

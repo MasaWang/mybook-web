@@ -16,6 +16,7 @@
   "source": {
     "repository": "https://github.com/MasaWang/MYBOOK.git",
     "ref": "codex/zhihui-zhihai-editorial-cleanup",
+    "revision": "8e9f8dfe94cf70131e7d6866680929c808ca9347",
     "directory": "智慧之海"
   }
 }

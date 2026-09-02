@@ -33,5 +33,19 @@ const books = getBookManifests();
       <p>OceanAI 是系統級智慧架構。</p>
       <p>內容來源：MYBOOK · Markdown-first publishing</p>
     </footer>
+    <script>
+      document.querySelectorAll<HTMLAnchorElement>("[data-continue-book]").forEach((link) => {
+        const book = link.dataset.continueBook;
+        const saved = book ? localStorage.getItem(`oceanai-reading:${book}`) : null;
+        if (!saved) return;
+        try {
+          const position = JSON.parse(saved) as { path?: string };
+          if (position.path) {
+            link.href = position.path;
+            link.hidden = false;
+          }
+        } catch { localStorage.removeItem(`oceanai-reading:${book}`); }
+      });
+    </script>
   </body>
 </html>
