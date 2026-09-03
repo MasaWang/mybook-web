@@ -25,7 +25,7 @@ for (const path of htmlFiles) {
     if (rule.pattern.test(html)) failures.push(`${relative(outputRoot, path)}: ${rule.label}`);
   }
   if (path.endsWith(join("contents", "index.html"))) {
-    const readerLinks = [...html.matchAll(/href="[^"]+\/read\/([^/]+)\/"/g)].map((match) => match[1]);
+    const readerLinks = [...html.matchAll(/data-unit="([^"]+)"/g)].map((match) => match[1]);
     if (new Set(readerLinks).size !== readerLinks.length) failures.push(`${relative(outputRoot, path)}: duplicate reader links`);
   }
 }
