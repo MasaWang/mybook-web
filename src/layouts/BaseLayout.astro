@@ -32,6 +32,17 @@ const jsonLd = structuredData ? JSON.stringify(structuredData).replace(/</g, "\\
     <meta name="twitter:image" content={socialImage} />
     {alternateLanguages.map((alternate) => <link rel="alternate" hreflang={alternate.hrefLang} href={new URL(alternate.href, canonical)} />)}
     {jsonLd && <script is:inline type="application/ld+json" set:html={jsonLd} />}
+    <script is:inline>
+      (() => {
+        try {
+          const savedTheme = localStorage.getItem("oceanai-theme");
+          const prefersDark = matchMedia("(prefers-color-scheme: dark)").matches;
+          document.documentElement.dataset.theme = savedTheme === "dark" || (!savedTheme && prefersDark) ? "dark" : "light";
+        } catch {
+          document.documentElement.dataset.theme = "light";
+        }
+      })();
+    </script>
     <title>{title}</title>
   </head>
   <body>
@@ -40,6 +51,7 @@ const jsonLd = structuredData ? JSON.stringify(structuredData).replace(/</g, "\\
       <a class="brand" href={`${base}/`}>OCEANAI <span>BOOKS</span></a>
       <nav aria-label="主要導覽">
         {books.map((book) => <a href={`${base}/books/${book.slug}/`} aria-current={Astro.url.pathname.includes(`/books/${book.slug}/`) ? "page" : undefined}>{book.title}</a>)}
+        <button class="theme-toggle" type="button" aria-label="切換至深色模式">深色</button>
       </nav>
     </header>
     <main id="main-content" tabindex="-1"><slot /></main>
@@ -48,6 +60,21 @@ const jsonLd = structuredData ? JSON.stringify(structuredData).replace(/</g, "\\
       <p>內容來源：MYBOOK · Markdown-first publishing</p>
     </footer>
     <script>
+      const themeToggle = document.querySelector<HTMLButtonElement>(".theme-toggle");
+      const updateThemeToggle = () => {
+        if (!themeToggle) return;
+        const dark = document.documentElement.dataset.theme === "dark";
+        themeToggle.textContent = dark ? "淺色" : "深色";
+        themeToggle.setAttribute("aria-label", dark ? "切換至淺色模式" : "切換至深色模式");
+        themeToggle.setAttribute("aria-pressed", String(dark));
+      };
+      updateThemeToggle();
+      themeToggle?.addEventListener("click", () => {
+        const nextTheme = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+        document.documentElement.dataset.theme = nextTheme;
+        try { localStorage.setItem("oceanai-theme", nextTheme); } catch {}
+        updateThemeToggle();
+      });
       document.querySelectorAll<HTMLAnchorElement>("[data-continue-book]").forEach((link) => {
         const book = link.dataset.continueBook;
         const saved = book ? localStorage.getItem(`oceanai-reading:${book}`) : null;
