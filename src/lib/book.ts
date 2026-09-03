@@ -80,6 +80,11 @@ function firstHeading(markdown: string, fallback: string) {
   return cleanTitle(markdown.match(/^#\s+(.+)$/m)?.[1] ?? fallback);
 }
 
+function cleanMarkdownHeading(line: string) {
+  const heading = line.match(/^(#{1,6}\s+)(.+)$/);
+  return heading ? `${heading[1]}${cleanTitle(heading[2])}` : line;
+}
+
 function prepareMarkdown(markdown: string) {
   let prepared = markdown.replace(/^#\s+.+?\n+/, "");
   prepared = prepared.replace(
@@ -90,7 +95,7 @@ function prepareMarkdown(markdown: string) {
   return prepared
     .split("\n")
     .filter((line) => !/^[📘📗]\s*《?.+\.md[》』]?\s*$/u.test(line.trim()))
-    .map((line) => line.replace(/^(#{1,6}\s+(?:\*\*)?)[🧭📘📗🩵🩶💠🤝🏛🌌🜂☁️🌍🎨📚]+\s*/u, "$1"))
+    .map(cleanMarkdownHeading)
     .join("\n")
     .trim();
 }

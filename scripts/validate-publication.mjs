@@ -24,6 +24,13 @@ for (const path of htmlFiles) {
   for (const rule of forbidden) {
     if (rule.pattern.test(html)) failures.push(`${relative(outputRoot, path)}: ${rule.label}`);
   }
+  for (const heading of html.matchAll(/<h[1-6]\b[^>]*>([\s\S]*?)<\/h[1-6]>/g)) {
+    const text = heading[1].replace(/<[^>]+>/g, "");
+    if (/(?:\*\*|__|`|\p{Extended_Pictographic})/u.test(text)) {
+      failures.push(`${relative(outputRoot, path)}: heading decoration leaked into public text`);
+      break;
+    }
+  }
   if (path.endsWith(join("contents", "index.html"))) {
     const readerLinks = [...html.matchAll(/href="[^"]+\/read\/([^/]+)\/"/g)].map((match) => match[1]);
     if (new Set(readerLinks).size !== readerLinks.length) failures.push(`${relative(outputRoot, path)}: duplicate reader links`);
