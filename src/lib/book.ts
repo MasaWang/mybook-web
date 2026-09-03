@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync } from "node:fs";
+import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { basename, dirname, join, relative } from "node:path";
 import { marked } from "marked";
 
@@ -19,6 +19,8 @@ export type BookManifest = {
   defaultReadingMode: ReadingMode;
   publication: { status: string; statusLabel: string; version: string; updated: string };
   source: { repository: string; ref: string; revision?: string; directory: string };
+  cover?: string;
+  statement?: string;
 };
 
 export type ReadingUnit = {
@@ -48,7 +50,9 @@ export function getBookManifest(slug: string) {
 }
 
 export function getSourceRevision(bookSlug: string): SourceRevision | undefined {
-  const source = JSON.parse(readFileSync(join(contentRoot, "source.json"), "utf8")) as { books: SourceRevision[] };
+  const stamp = join(contentRoot, "source.json");
+  if (!existsSync(stamp)) return undefined;
+  const source = JSON.parse(readFileSync(stamp, "utf8")) as { books: SourceRevision[] };
   return source.books.find((book) => book.book === bookSlug);
 }
 
@@ -212,4 +216,90 @@ export function getBookUnits(bookSlug: string): ReadingUnit[] {
       const number = (unit: ReadingUnit) => unit.slug === "preface" ? 0 : unit.slug.startsWith("part-") ? partStarts[Number(unit.slug.slice(5))] ?? 99 : Number(unit.slug.slice(8));
       return number(a) - number(b);
   });
+}
+
+export type PublicationPage = {
+  name: string;
+  description: string;
+  url: string;
+  inLanguage?: string;
+};
+
+export type PublicationBreadcrumb = { name: string; url: string };
+
+export function publicationGraph(input: {
+  book: BookManifest;
+  bookUrl: string;
+  page: PublicationPage;
+  image?: string;
+  breadcrumbs?: PublicationBreadcrumb[];
+  extra?: Record<string, unknown>[];
+}) {
+  const root = new URL("../../", input.bookUrl).href;
+  const authorId = `${root}#author`;
+  const publicationId = `${input.bookUrl}#publication`;
+  const webpageId = `${input.page.url}#webpage`;
+  const graph: Record<string, unknown>[] = [
+    {
+      "@type": "Person",
+      "@id": authorId,
+      "name": input.book.author,
+      "url": root,
+    },
+    {
+      "@type": "Book",
+      "@id": publicationId,
+      "name": input.book.title,
+      "alternateName": input.book.subtitle,
+      "description": input.book.description,
+      "author": { "@id": authorId },
+      "copyrightHolder": { "@id": authorId },
+      "publisher": { "@id": authorId },
+      "datePublished": input.book.publication.updated.slice(0, 4),
+      "dateModified": input.book.publication.updated,
+      "inLanguage": ["en", "zh-Hant"],
+      "bookEdition": input.book.publication.version,
+      "url": input.bookUrl,
+      ...(input.image ? { image: input.image } : {}),
+    },
+    {
+      "@type": "WebPage",
+      "@id": webpageId,
+      "url": input.page.url,
+      "name": input.page.name,
+      "description": input.page.description,
+      "inLanguage": input.page.inLanguage ?? "zh-Hant",
+      "isPartOf": { "@id": publicationId },
+    },
+  ];
+  if (input.breadcrumbs?.length) {
+    graph.push({
+      "@type": "BreadcrumbList",
+      itemListElement: input.breadcrumbs.map((item, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        name: item.name,
+        item: item.url,
+      })),
+    });
+  }
+  if (input.extra) graph.push(...input.extra);
+  return { "@context": "https://schema.org", "@graph": graph };
+}
+
+export function dossierMeta(book: BookManifest, sourceRevision?: SourceRevision) {
+  const line = (label: string, value: string) => `${label.padEnd(14, "\u00a0")}: ${value}`;
+  return [
+    "============================================",
+    line("CLASSIFICATION", "UNRESTRICTED DISTRIBUTION"),
+    line("REGISTER", "OCEANAI RAW MARKDOWN"),
+    line("STATUS", `${book.publication.status.toUpperCase()} / OPEN ACCESS`),
+    line("DATE", book.publication.updated),
+    line("LANGUAGE", book.languageLabel),
+    line("VERSION", book.publication.version),
+    sourceRevision ? line("REVISION", sourceRevision.revision.slice(0, 12)) : undefined,
+    "============================================",
+  ]
+    .filter((entry): entry is string => Boolean(entry))
+    .join("\n");
 }

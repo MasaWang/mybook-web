@@ -1,35 +1,57 @@
 ---
 import "../styles/global.css";
-import { getBookManifests } from "../lib/book";
+import { getBookManifests, publicationGraph } from "../lib/book";
 interface Props {
   title: string;
   description: string;
   structuredData?: Record<string, unknown> | Record<string, unknown>[];
   alternateLanguages?: { hrefLang: string; href: string }[];
+  ogImage?: string;
 }
-const { title, description, structuredData, alternateLanguages = [] } = Astro.props;
+const { title, description, structuredData, alternateLanguages = [], ogImage } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 const books = getBookManifests();
-const socialImage = new URL(`${base}/og-default.svg`, Astro.site);
-const jsonLd = structuredData ? JSON.stringify(structuredData).replace(/</g, "\\u003c") : undefined;
+const featured = books.find((book) => Astro.url.pathname.includes(`/books/${book.slug}/`)) ?? books[0];
+const socialImage = new URL(`${base}/${ogImage ?? "og-default.svg"}`, Astro.site);
+const bookUrl = featured ? new URL(`${base}/books/${featured.slug}/`, Astro.site).href : canonical.href;
+const defaultGraph = featured
+  ? publicationGraph({
+      book: featured,
+      bookUrl,
+      page: { name: title, description, url: canonical.href },
+      image: socialImage.href,
+    })
+  : undefined;
+const jsonLdValue = structuredData ?? defaultGraph;
+const jsonLd = jsonLdValue ? JSON.stringify(jsonLdValue).replace(/</g, "\\u003c") : undefined;
+const currentPath = Astro.url.pathname;
+const bookHome = featured ? `${base}/books/${featured.slug}/` : `${base}/`;
+const prefaceHref = featured ? `${base}/books/${featured.slug}/read/preface/` : `${base}/`;
+const contentsHref = featured ? `${base}/books/${featured.slug}/contents/` : `${base}/`;
+const isCurrent = (href: string) => currentPath === href || currentPath === `${href}`;
 ---
 <!doctype html>
 <html lang="zh-Hant">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
+    <link rel="icon" href={`${base}/favicon.svg`} type="image/svg+xml" />
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     <meta property="og:type" content="book" />
+    <meta property="og:site_name" content="OceanAI Raw Markdown" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content="zh_TW" />
     <meta property="og:image" content={socialImage} />
+    <meta property="og:image:alt" content={featured ? `《${featured.title}》封面` : "OceanAI Raw Markdown"} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={socialImage} />
+    <meta name="twitter:image:alt" content={featured ? `《${featured.title}》封面` : "OceanAI Raw Markdown"} />
     {alternateLanguages.map((alternate) => <link rel="alternate" hreflang={alternate.hrefLang} href={new URL(alternate.href, canonical)} />)}
     {jsonLd && <script is:inline type="application/ld+json" set:html={jsonLd} />}
     <title>{title}</title>
@@ -37,15 +59,43 @@ const jsonLd = structuredData ? JSON.stringify(structuredData).replace(/</g, "\\
   <body>
     <a class="skip-link" href="#main-content">跳至主要內容</a>
     <header class="site-header shell">
-      <a class="brand" href={`${base}/`}>OCEANAI <span>BOOKS</span></a>
+      <a class="brand" href={`${base}/`}>OCEANAI RAW</a>
       <nav aria-label="主要導覽">
-        {books.map((book) => <a href={`${base}/books/${book.slug}/`} aria-current={Astro.url.pathname.includes(`/books/${book.slug}/`) ? "page" : undefined}>{book.title}</a>)}
+        <a href={bookHome} aria-current={isCurrent(bookHome) || currentPath === `${base}/` ? "page" : undefined}>BOOK</a>
+        <span aria-hidden="true">/</span>
+        <a href={prefaceHref} aria-current={currentPath.includes("/read/preface/") ? "page" : undefined}>INTENT</a>
+        <span aria-hidden="true">/</span>
+        <a href={contentsHref} aria-current={currentPath.includes("/contents/") ? "page" : undefined}>CONTENTS</a>
+        <span aria-hidden="true">/</span>
+        <a href={`${base}/legal/`} aria-current={currentPath.includes("/legal/") ? "page" : undefined}>CREDITS</a>
       </nav>
     </header>
     <main id="main-content" tabindex="-1"><slot /></main>
-    <footer class="site-footer shell">
-      <p>OceanAI 是系統級智慧架構。</p>
-      <p>內容來源：MYBOOK · Markdown-first publishing</p>
+    <footer class="footer shell">
+      <hr class="ascii-rule" />
+      <div class="footer-grid">
+        <p>
+          OCEANAI RAW<br />
+          {featured ? featured.title.toUpperCase() : "MARKDOWN-FIRST PUBLISHING"}<br />
+          {featured ? `© ${featured.publication.updated.slice(0, 4)} ${featured.author.toUpperCase()}` : "MYBOOK"}
+        </p>
+        <p>
+          <span>書稿以 MARKDOWN 為權威來源。</span><br />
+          <span>可閱讀、引用，並標明書名與來源版本。</span><br />
+          <span>SOURCE REVISION IS LOCKED.</span>
+        </p>
+        <p>
+          <a href={`${base}/legal/`}>LEGAL NOTICE</a><br />
+          <a href={`${base}/privacy/`}>PRIVACY</a><br />
+          <a href={`${base}/accessibility/`}>ACCESSIBILITY</a><br />
+          {featured && <a href={featured.source.repository.replace(/\.git$/, "")}>MYBOOK SOURCE</a>}
+        </p>
+      </div>
+      <div class="footer-license-detail">
+        <p>OCEANAI RAW MARKDOWN — MYBOOK-FIRST PUBLISHING</p>
+        <p>線上版由本站靜態出版；書稿內容以 MYBOOK 鎖定 revision 為準。</p>
+        <p>引用時請保留書名、作者與來源版本，且不得扭曲原意。</p>
+      </div>
     </footer>
     <script>
       document.querySelectorAll<HTMLAnchorElement>("[data-continue-book]").forEach((link) => {

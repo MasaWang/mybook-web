@@ -1,0 +1,63 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { getBookManifests, getSourceRevision, publicationGraph } from "../lib/book";
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const book = getBookManifests()[0];
+const sourceRevision = book ? getSourceRevision(book.slug) : undefined;
+const pageUrl = new URL(`${base}/legal/`, Astro.site).href;
+const bookUrl = book ? new URL(`${base}/books/${book.slug}/`, Astro.site).href : pageUrl;
+const structuredData = book
+  ? publicationGraph({
+      book,
+      bookUrl,
+      page: { name: "Legal Notice and Credits — OceanAI Raw Markdown", description: "出版聲明、來源、託管與技術資訊。", url: pageUrl },
+      image: new URL(`${base}/og-default.svg`, Astro.site).href,
+      breadcrumbs: [
+        { name: book.title, url: bookUrl },
+        { name: "Legal Notice", url: pageUrl },
+      ],
+    })
+  : undefined;
+---
+<BaseLayout title="Legal Notice and Credits — OceanAI Raw Markdown" description="出版聲明、來源、託管與技術資訊。" structuredData={structuredData}>
+  <article class="legal-page shell prose">
+    <p class="eyebrow">04 / CREDITS AND LEGAL NOTICE</p>
+    <h1>LEGAL NOTICE</h1>
+    <section>
+      <h2>Publication</h2>
+      <p>Title: {book?.title ?? "OceanAI Raw Markdown"}</p>
+      <p>Subtitle: {book?.subtitle}</p>
+      <p>Author / editorial identity: {book?.author}</p>
+      <p>Publication status: {book?.publication.statusLabel} ({book?.publication.version})</p>
+      <p>Updated: {book?.publication.updated}</p>
+    </section>
+    <section>
+      <h2>Source</h2>
+      <p>書稿以 MYBOOK Markdown 為權威來源，不提交至本網站 repository。建置時依 manifest 鎖定的 git revision 同步，revision 不符則拒絕發布。</p>
+      {book && (
+        <>
+          <p>Repository: <a href={book.source.repository.replace(/\.git$/, "")}>{book.source.repository.replace(/\.git$/, "")}</a></p>
+          <p>Directory: {book.source.directory}</p>
+          <p>Ref: {book.source.ref}</p>
+          {sourceRevision && <p>Locked revision: <code>{sourceRevision.revision}</code></p>}
+        </>
+      )}
+    </section>
+    <section>
+      <h2>License</h2>
+      <p>本站是 Markdown-first 的靜態出版介面。線上閱讀供查閱與引用；引用時請標明書名、作者與來源 revision，且不得扭曲原意。</p>
+      <p>書稿權利歸 MYBOOK 來源與作者所有。本網站不另外授予商業使用或改作授權。</p>
+    </section>
+    <section>
+      <h2>Hosting</h2>
+      <p>Host: GitHub Pages</p>
+      <p>Public site: <a href="https://masawang.github.io/mybook-web/">https://masawang.github.io/mybook-web/</a></p>
+    </section>
+    <section>
+      <h2>Credits</h2>
+      <p>Text source: MYBOOK Markdown.</p>
+      <p>Static publishing system: Astro, TypeScript and GitHub Pages.</p>
+    </section>
+  </article>
+</BaseLayout>

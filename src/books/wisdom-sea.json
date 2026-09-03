@@ -7,6 +7,8 @@
   "languageLabel": "English / 繁體中文",
   "partCount": 6,
   "defaultReadingMode": "bilingual",
+  "cover": "cover-wisdom-sea.svg",
+  "statement": "智慧不是孤立能力的累積，而是關係、責任、信任與系統協同逐步形成的秩序。",
   "publication": {
     "status": "Revising",
     "statusLabel": "持續修訂中",

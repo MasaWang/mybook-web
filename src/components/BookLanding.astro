@@ -1,0 +1,94 @@
+---
+import { dossierMeta, type BookManifest, type ReadingUnit, type SourceRevision } from "../lib/book";
+
+interface Props {
+  book: BookManifest;
+  units: ReadingUnit[];
+  sourceRevision?: SourceRevision;
+}
+
+const { book, units, sourceRevision } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const first = units[0];
+const cover = `${base}/${book.cover ?? "cover-wisdom-sea.svg"}`;
+const contentsHref = `${base}/books/${book.slug}/contents/`;
+const readHref = `${base}/books/${book.slug}/read/${first.slug}/`;
+const meta = dossierMeta(book, sourceRevision);
+---
+<section class="hero shell" data-home-hero>
+  <div class="manifest-meta">
+    <p class="meta">{meta}</p>
+  </div>
+  <div class="manifest">
+    <h1>{book.title}<br />—</h1>
+    <h2>{book.subtitle}</h2>
+    <p class="author">{book.author}</p>
+    <hr class="ascii-rule" />
+    <h3>THIS FILE IS NOT A LEAK.<br />IT IS A PUBLICATION.</h3>
+    <p>
+      完整書稿以 Markdown 為權威來源，供線上閱讀與版本演進。<br />
+      閱讀它。質疑它。繼續它。<br />
+      知識不因限制存取而更有價值。
+    </p>
+    {book.statement && <p>{book.statement}</p>}
+  </div>
+  <figure class="cover-figure">
+    <a class="cover-link" href={contentsHref} data-home-cover-link>
+      <img
+        data-home-cover
+        src={cover}
+        alt={`《${book.title}》封面`}
+        width="900"
+        height="1200"
+        loading="eager"
+        fetchpriority="high"
+        decoding="async"
+      />
+    </a>
+    <figcaption aria-hidden="true">SOURCE DOCUMENT / MARKDOWN-FIRST</figcaption>
+  </figure>
+</section>
+<section class="actions shell" data-home-actions aria-label="進入本書">
+  <div class="action-cell" data-home-action>
+    <p class="eyebrow">01. READ ONLINE</p>
+    <a class="button button--solid" href={readHref}>開始閱讀 <span>↗</span></a>
+  </div>
+  <div class="action-cell" data-home-action>
+    <p class="eyebrow">02. CONTENTS</p>
+    <a class="button" href={contentsHref}>查看目錄 <span>→</span></a>
+  </div>
+  <div class="action-cell" data-home-action>
+    <p class="eyebrow">03. CONTINUE</p>
+    <p class="action-note">
+      {sourceRevision ? `來源版本 ${sourceRevision.revision.slice(0, 12)}` : `${units.length} 個閱讀單元`}
+      · {book.publication.statusLabel}
+    </p>
+    <a class="button button--solid" href={readHref} data-continue-book={book.slug}>繼續閱讀 →</a>
+  </div>
+</section>
+<section class="index shell" data-home-index>
+  <article>
+    <h2>01. OPENING <small>↳ [ JUMP TO THIS SECTION ]</small></h2>
+    <p>前言與目錄，作為這次公開出版的入口。</p>
+    <a href={readHref}>[ READ THE OPENING ]</a>
+    <span>→</span>
+  </article>
+  <article>
+    <h2>02. CONTENTS <small>↳ [ EXPLORE THE WORK ]</small></h2>
+    <p>{book.partCount} 部 · {units.length} 個閱讀單元，依閱讀順序排列。</p>
+    <a href={contentsHref}>[ VIEW CONTENTS ]</a>
+    <span>→</span>
+  </article>
+  <article>
+    <h2>03. CREDITS <small>↳ [ JUMP TO THIS SECTION ]</small></h2>
+    <p>授權、來源 revision、託管與技術資訊。</p>
+    <a href={`${base}/legal/`}>[ VIEW CREDITS ]</a>
+    <span>→</span>
+  </article>
+  <article>
+    <h2>04. ACCESSIBILITY <small>↳ [ JUMP TO THIS SECTION ]</small></h2>
+    <p>鍵盤操作、螢幕閱讀器與已知限制。</p>
+    <a href={`${base}/accessibility/`}>[ VIEW ACCESSIBILITY ]</a>
+    <span>→</span>
+  </article>
+</section>
