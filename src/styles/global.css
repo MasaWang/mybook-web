@@ -110,7 +110,7 @@ a:hover { text-decoration-thickness: .16em; }
 .manifest h3 { margin-top: 1.5rem; font-size: 1rem; }
 .cover-figure { grid-area: cover; justify-self: center; width: min(100%, 27rem); margin: 0; position: relative; }
 .cover-link { display: block; }
-.cover-link img { width: 100%; height: auto; display: block; border: 1px solid var(--ink); }
+.cover-link svg { width: 100%; height: auto; display: block; border: 1px solid var(--ink); font-family: var(--mono); }
 .cover-figure figcaption {
   border: 1px solid var(--ink);
   background: var(--paper);

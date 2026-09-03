@@ -1,5 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="900" height="1200" viewBox="0 0 900 1200" role="img" aria-labelledby="cover-title cover-desc">
-  <title id="cover-title">zgKw</title>
+  <title id="cover-title">智慧之海</title>
   <desc id="cover-desc">OceanAI Raw Markdown source document cover</desc>
   <rect width="900" height="1200" fill="#f8f8f6"/>
   <rect x="28" y="28" width="844" height="1144" fill="none" stroke="#090909" stroke-width="2"/>
@@ -7,11 +8,11 @@
   <text x="88" y="140" fill="#090909" font-family="Courier New, Courier, monospace" font-size="22" font-weight="700" letter-spacing="4">OCEANAI RAW</text>
   <text x="88" y="176" fill="#090909" font-family="Courier New, Courier, monospace" font-size="16" font-weight="700">SOURCE DOCUMENT / OPEN ACCESS</text>
   <line x1="88" y1="210" x2="812" y2="210" stroke="#090909" stroke-dasharray="5 4"/>
-  <text x="88" y="430" fill="#090909" font-family="Courier New, Courier, monospace" font-size="92" font-weight="500">zgKw</text>
-  <text x="88" y="500" fill="#090909" font-family="Courier New, Courier, monospace" font-size="24">��zg�q��</text>
-  <text x="88" y="536" fill="#090909" font-family="Courier New, Courier, monospace" font-size="24">0qz���*</text>
+  <text x="88" y="430" fill="#090909" font-family="Courier New, Courier, monospace" font-size="92" font-weight="500">智慧之海</text>
+  <text x="88" y="500" fill="#090909" font-family="Courier New, Courier, monospace" font-size="24">從個體智慧、系統架構</text>
+  <text x="88" y="536" fill="#090909" font-family="Courier New, Courier, monospace" font-size="24">到共智文明的思想航程</text>
   <line x1="88" y1="900" x2="812" y2="900" stroke="#090909" stroke-dasharray="5 4"/>
-  <text x="88" y="960" fill="#090909" font-family="Courier New, Courier, monospace" font-size="18" font-weight="700">MARKDOWN-FIRST / EN + A-</text>
-  <text x="88" y="996" fill="#090909" font-family="Courier New, Courier, monospace" font-size="18" font-weight="700">v1.9aR2 � REVISING</text>
+  <text x="88" y="960" fill="#090909" font-family="Courier New, Courier, monospace" font-size="18" font-weight="700">MARKDOWN-FIRST / EN + ZH-HANT</text>
+  <text x="88" y="996" fill="#090909" font-family="Courier New, Courier, monospace" font-size="18" font-weight="700">v1.9a-R2 · REVISING</text>
   <text x="88" y="1088" fill="#090909" font-family="Courier New, Courier, monospace" font-size="16" font-weight="700">THIS FILE IS NOT A LEAK. IT IS A PUBLICATION.</text>
 </svg>

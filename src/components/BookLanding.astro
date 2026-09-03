@@ -10,10 +10,10 @@ interface Props {
 const { book, units, sourceRevision } = Astro.props;
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 const first = units[0];
-const cover = `${base}/${book.cover ?? "cover-wisdom-sea.svg"}`;
 const contentsHref = `${base}/books/${book.slug}/contents/`;
 const readHref = `${base}/books/${book.slug}/read/${first.slug}/`;
 const meta = dossierMeta(book, sourceRevision);
+const coverId = `cover-${book.slug}`;
 ---
 <section class="hero shell" data-home-hero>
   <div class="manifest-meta">
@@ -34,16 +34,22 @@ const meta = dossierMeta(book, sourceRevision);
   </div>
   <figure class="cover-figure">
     <a class="cover-link" href={contentsHref} data-home-cover-link>
-      <img
-        data-home-cover
-        src={cover}
-        alt={`《${book.title}》封面`}
-        width="900"
-        height="1200"
-        loading="eager"
-        fetchpriority="high"
-        decoding="async"
-      />
+      <svg data-home-cover viewBox="0 0 900 1200" role="img" aria-labelledby={`${coverId}-title ${coverId}-desc`}>
+        <title id={`${coverId}-title`}>《{book.title}》封面</title>
+        <desc id={`${coverId}-desc`}>{book.subtitle}</desc>
+        <rect width="900" height="1200" fill="#f8f8f6"></rect>
+        <rect x="28" y="28" width="844" height="1144" fill="none" stroke="#090909" stroke-width="2"></rect>
+        <rect x="52" y="52" width="796" height="1096" fill="none" stroke="#090909" stroke-width="1" stroke-dasharray="6 5"></rect>
+        <text x="88" y="140" fill="#090909" font-size="22" font-weight="700" letter-spacing="4">OCEANAI RAW</text>
+        <text x="88" y="176" fill="#090909" font-size="16" font-weight="700">SOURCE DOCUMENT / OPEN ACCESS</text>
+        <line x1="88" y1="210" x2="812" y2="210" stroke="#090909" stroke-dasharray="5 4"></line>
+        <text x="88" y="430" fill="#090909" font-size="92" font-weight="500">{book.title}</text>
+        <text x="88" y="510" fill="#090909" font-size="24">{book.subtitle}</text>
+        <line x1="88" y1="900" x2="812" y2="900" stroke="#090909" stroke-dasharray="5 4"></line>
+        <text x="88" y="960" fill="#090909" font-size="18" font-weight="700">MARKDOWN-FIRST / {book.languageLabel}</text>
+        <text x="88" y="996" fill="#090909" font-size="18" font-weight="700">{book.publication.version} · {book.publication.status.toUpperCase()}</text>
+        <text x="88" y="1088" fill="#090909" font-size="16" font-weight="700">THIS FILE IS NOT A LEAK. IT IS A PUBLICATION.</text>
+      </svg>
     </a>
     <figcaption aria-hidden="true">SOURCE DOCUMENT / MARKDOWN-FIRST</figcaption>
   </figure>
