@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join, relative } from "node:path";
 
 const outputRoot = join(process.cwd(), "dist");
@@ -25,7 +25,7 @@ for (const path of htmlFiles) {
     if (rule.pattern.test(html)) failures.push(`${relative(outputRoot, path)}: ${rule.label}`);
   }
   if (path.endsWith(join("contents", "index.html"))) {
-    const readerLinks = [...html.matchAll(/href="[^"]+\/read\/([^/]+)\/"/g)].map((match) => match[1]);
+    const readerLinks = [...html.matchAll(/data-unit="([^"]+)"/g)].map((match) => match[1]);
     if (new Set(readerLinks).size !== readerLinks.length) failures.push(`${relative(outputRoot, path)}: duplicate reader links`);
   }
 }
@@ -42,15 +42,42 @@ for (const path of bilingualReaders) {
   }
 }
 
+function hasJsonLdType(html, type) {
+  return html.includes(`"@type":"${type}"`);
+}
+
+const requiredPages = ["legal", "privacy", "accessibility"];
+for (const page of requiredPages) {
+  if (!htmlFiles.some((path) => path.endsWith(join(page, "index.html")))) {
+    failures.push(`Missing ${page} page`);
+  }
+}
+
+const home = htmlFiles.find((path) => path === join(outputRoot, "index.html"));
+if (!home) {
+  failures.push("Missing homepage");
+} else {
+  const html = readFileSync(home, "utf8");
+  for (const type of ["Person", "Book", "WebPage"]) {
+    if (!hasJsonLdType(html, type)) failures.push(`homepage: missing ${type} JSON-LD`);
+  }
+  if (!html.includes("CLASSIFICATION")) failures.push("homepage: missing dossier classification block");
+  if (!html.includes("THIS FILE IS NOT A LEAK")) failures.push("homepage: missing publication manifesto");
+}
+
 for (const path of htmlFiles.filter((path) => path.includes(`${join("read", "")}`))) {
   const html = readFileSync(path, "utf8");
-  if (!html.includes('"@type":"Chapter"')) failures.push(`${relative(outputRoot, path)}: missing Chapter JSON-LD`);
-  if (!html.includes('"@type":"BreadcrumbList"')) failures.push(`${relative(outputRoot, path)}: missing BreadcrumbList JSON-LD`);
+  for (const type of ["Person", "Book", "WebPage"]) {
+    if (!hasJsonLdType(html, type)) failures.push(`${relative(outputRoot, path)}: missing ${type} JSON-LD`);
+  }
+  if (!hasJsonLdType(html, "BreadcrumbList")) failures.push(`${relative(outputRoot, path)}: missing BreadcrumbList JSON-LD`);
 }
 
 if (!htmlFiles.some((path) => readFileSync(path, "utf8").includes('property="og:image"'))) failures.push("Missing social preview metadata");
 
 if (bilingualReaders.length === 0) failures.push("No bilingual reader output was generated");
+
+if (!existsSync(join(outputRoot, "cover-wisdom-sea.svg"))) failures.push("Missing source-document cover");
 
 if (failures.length) {
   console.error(`Publication validation failed:\n${failures.map((failure) => `- ${failure}`).join("\n")}`);

@@ -1,26 +1,41 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { getBookManifests } from "../lib/book";
+import BookLanding from "../components/BookLanding.astro";
+import { getBookManifests, getBookUnits, getSourceRevision, publicationGraph } from "../lib/book";
+
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 const books = getBookManifests();
+const book = books[0];
+const units = book ? getBookUnits(book.slug) : [];
+const sourceRevision = book ? getSourceRevision(book.slug) : undefined;
+const pageUrl = new URL(`${base}/`, Astro.site).href;
+const bookUrl = book ? new URL(`${base}/books/${book.slug}/`, Astro.site).href : pageUrl;
+const image = new URL(`${base}/og-default.svg`, Astro.site).href;
+const structuredData = book
+  ? publicationGraph({
+      book,
+      bookUrl,
+      page: {
+        name: `${book.title} — OceanAI Raw Markdown`,
+        description: book.description,
+        url: pageUrl,
+      },
+      image,
+    })
+  : undefined;
 ---
-<BaseLayout title="OceanAI Books" description="OceanAI 的開放式數位書庫。">
-  <section class="landing shell">
-    <p class="eyebrow">OCEANAI · DIGITAL LIBRARY</p>
-    <h1><span>思想，需要一個</span><span>可以持續生長的容器。</span></h1>
-    <p class="lede">以 Markdown 為內容核心，為長篇閱讀、版本演進與雙語出版而建立。</p>
-    <div class="library-list" aria-label="書庫">
-      {books.map((book) => (
-        <a class="primary-link" href={`${base}/books/${book.slug}/`}>
-          <span>《{book.title}》<small>{book.author} · {book.publication.statusLabel}</small></span>
-          <span class="primary-destination" aria-hidden="true">書籍首頁&nbsp;→</span>
-        </a>
-        <div class="library-actions">
-          <a href={`${base}/books/${book.slug}/read/preface/`}>開始閱讀</a>
-          <a href={`${base}/books/${book.slug}/contents/`}>目錄</a>
-          <a href={`${base}/books/${book.slug}/read/preface/`} data-continue-book={book.slug} hidden>繼續閱讀</a>
-        </div>
-      ))}
-    </div>
-  </section>
+<BaseLayout
+  title={book ? `${book.title} — OceanAI Raw Markdown` : "OceanAI Raw Markdown"}
+  description={book?.description ?? "OceanAI 的 Markdown-first 數位出版。"}
+  structuredData={structuredData}
+>
+  {book ? (
+    <BookLanding book={book} units={units} sourceRevision={sourceRevision} />
+  ) : (
+    <section class="legal-page shell">
+      <p class="eyebrow">OCEANAI RAW</p>
+      <h1>NO SOURCE DOCUMENT</h1>
+      <p>尚未找到書籍 manifest。</p>
+    </section>
+  )}
 </BaseLayout>

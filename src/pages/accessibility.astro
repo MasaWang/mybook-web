@@ -1,0 +1,37 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { getBookManifests, publicationGraph } from "../lib/book";
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const book = getBookManifests()[0];
+const pageUrl = new URL(`${base}/accessibility/`, Astro.site).href;
+const bookUrl = book ? new URL(`${base}/books/${book.slug}/`, Astro.site).href : pageUrl;
+const structuredData = book
+  ? publicationGraph({
+      book,
+      bookUrl,
+      page: { name: "Accessibility — OceanAI Raw Markdown", description: "無障礙方針與已知限制。", url: pageUrl },
+      image: new URL(`${base}/og-default.svg`, Astro.site).href,
+    })
+  : undefined;
+---
+<BaseLayout title="Accessibility — OceanAI Raw Markdown" description="無障礙方針與已知限制。" structuredData={structuredData}>
+  <article class="legal-page shell prose">
+    <p class="eyebrow">ACCESSIBILITY / HTML FIRST</p>
+    <h1>ACCESSIBILITY</h1>
+    <p>本出版站面向鍵盤操作、螢幕閱讀器與文字放大。頁面提供語意標題、跳至主要內容、可見焦點、高對比、減少動態，以及有意義圖像的替代文字。</p>
+    <section>
+      <h2>Alternative format</h2>
+      <p>HTML 版從 MYBOOK Markdown 產生，可在常見手機寬度重排且避免橫向捲動。雙語章節提供 EN、繁中、EN + 繁中 三種閱讀控制。</p>
+    </section>
+    <section>
+      <h2>Known limitations</h2>
+      <p>書稿中的編輯 emoji、製作檔名與已知術語錯字會在出版時清理；表格、程式碼與腳註依 Markdown 轉換，複雜版面可能不如紙本精準。</p>
+      <p>語言模式與閱讀位置存在本機瀏覽器，不會反映在分享出去的 URL（章節頁的 <code>?lang=</code> 除外）。</p>
+    </section>
+    <section>
+      <h2>Feedback</h2>
+      <p>無障礙問題請透過 <a href="https://github.com/MasaWang/mybook-web/issues">GitHub issues</a> 回報。</p>
+    </section>
+  </article>
+</BaseLayout>

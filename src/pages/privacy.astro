@@ -1,0 +1,36 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { getBookManifests, publicationGraph } from "../lib/book";
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const book = getBookManifests()[0];
+const pageUrl = new URL(`${base}/privacy/`, Astro.site).href;
+const bookUrl = book ? new URL(`${base}/books/${book.slug}/`, Astro.site).href : pageUrl;
+const structuredData = book
+  ? publicationGraph({
+      book,
+      bookUrl,
+      page: { name: "Privacy — OceanAI Raw Markdown", description: "本出版站的隱私說明。", url: pageUrl },
+      image: new URL(`${base}/og-default.svg`, Astro.site).href,
+    })
+  : undefined;
+---
+<BaseLayout title="Privacy — OceanAI Raw Markdown" description="本出版站的隱私說明。" structuredData={structuredData}>
+  <article class="legal-page shell prose">
+    <p class="eyebrow">PRIVACY / LIMITED DATA</p>
+    <h1>PRIVACY</h1>
+    <p>本站不使用觀眾分析、廣告追蹤、使用者帳號或廣告 cookie。</p>
+    <section>
+      <h2>Reading position</h2>
+      <p>閱讀進度與語言模式只存在你的瀏覽器 localStorage，不會傳送到伺服器。鍵名為 <code>oceanai-reading</code> 與 <code>oceanai-reading-mode</code>，用來恢復「繼續閱讀」與 EN / 繁中 / 雙語顯示。</p>
+    </section>
+    <section>
+      <h2>Server logs</h2>
+      <p>GitHub Pages 可能暫時記錄技術連線資料，包括 IP、請求 URL、時間與 user agent，供安全與營運使用。保存期限依託管方設定。</p>
+    </section>
+    <section>
+      <h2>External links</h2>
+      <p>若你前往 MYBOOK 或其他外部網站，適用該站自己的隱私做法。</p>
+    </section>
+  </article>
+</BaseLayout>
