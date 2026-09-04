@@ -4,23 +4,36 @@ import { getBookManifests } from "../lib/book";
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 const books = getBookManifests();
 ---
-<BaseLayout title="OceanAI Books" description="OceanAI 的開放式數位書庫。">
+<BaseLayout title="OceanAI Books｜持續出版書庫" description="OceanAI Books is an open continuous-publishing library. OceanAI 的開放式持續出版書庫。">
   <section class="landing shell">
-    <p class="eyebrow">OCEANAI · DIGITAL LIBRARY</p>
-    <h1><span>思想，需要一個</span><span>可以持續生長的容器。</span></h1>
-    <p class="lede">以 Markdown 為內容核心，為長篇閱讀、版本演進與雙語出版而建立。</p>
-    <div class="library-list" aria-label="書庫">
+    <header class="library-intro">
+      <p class="eyebrow"><span data-language="en">LIBRARY HOME</span><span data-language="zh">出版庫首頁</span> · OAB-001</p>
+      <h1><span>OceanAI Books</span><span data-language="en">Continuous Publishing Library</span><span data-language="zh">持續出版書庫</span></h1>
+      <p class="lede"><span data-language="en">Write in GitHub. Publish continuously on the Web.</span><span data-language="zh">在 GitHub 持續撰寫，在 Web 持續出版。</span></p>
+    </header>
+    <div class="library-list" aria-label="目前書目">
+      <p class="library-label"><span data-language="en">CURRENT BOOKS</span><span data-language="zh">目前書目</span></p>
       {books.map((book) => (
-        <a class="primary-link" href={`${base}/books/${book.slug}/`}>
-          <span>《{book.title}》<small>{book.author} · {book.publication.statusLabel}</small></span>
-          <span class="primary-destination" aria-hidden="true">書籍首頁&nbsp;→</span>
-        </a>
-        <div class="library-actions">
-          <a href={`${base}/books/${book.slug}/read/preface/`}>開始閱讀</a>
-          <a href={`${base}/books/${book.slug}/contents/`}>目錄</a>
-          <a href={`${base}/books/${book.slug}/read/preface/`} data-continue-book={book.slug} hidden>繼續閱讀</a>
-        </div>
+        <article class="library-entry">
+          <span class="library-number">01.</span>
+          <div class="library-title">
+            <h2><a href={`${base}/books/${book.slug}/`}><span lang="en" data-language="en">{book.titleEn}</span><span lang="zh-Hant" data-language="zh">{book.title}</span></a></h2>
+            <span>{book.author}</span>
+            <span>OceanAI</span>
+          </div>
+          <dl class="library-meta">
+            <div><dt><span data-language="en">STATUS</span><span data-language="zh">狀態</span></dt><dd><span data-language="en">{book.publication.statusLabelEn}</span><span data-language="zh">{book.publication.statusLabel}</span></dd></div>
+            <div><dt><span data-language="en">UPDATED</span><span data-language="zh">更新</span></dt><dd>{book.publication.updated}</dd></div>
+            <div><dt><span data-language="en">LANGUAGE</span><span data-language="zh">語言</span></dt><dd>{book.languageLabel}</dd></div>
+          </dl>
+          <div class="library-actions">
+            <a href={`${base}/books/${book.slug}/read/preface/`}><span data-language="en">▶ START READING</span><span data-language="zh">▶ 開始閱讀</span></a>
+            <a href={`${base}/books/${book.slug}/contents/`}><span data-language="en">▶ CONTENTS</span><span data-language="zh">▶ 本書目錄</span></a>
+            <a href={`${base}/books/${book.slug}/read/preface/`} data-continue-book={book.slug} hidden><span data-language="en">▶ CONTINUE READING</span><span data-language="zh">▶ 繼續閱讀</span></a>
+          </div>
+        </article>
       ))}
     </div>
+    <p class="library-principles"><span data-language="en">Open · Transparent · Long-term<br />Continuous Publishing</span><span data-language="zh">開放 · 透明 · 長期<br />持續出版</span></p>
   </section>
 </BaseLayout>

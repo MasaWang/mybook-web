@@ -1,15 +1,19 @@
 {
   "slug": "wisdom-sea",
   "title": "智慧之海",
+  "titleEn": "The Ocean of Intelligence",
   "subtitle": "從個體智慧、系統架構到共智文明的思想航程",
+  "subtitleEn": "A Journey from Individual Intelligence and System Architecture to a Civilization of Collective Intelligence",
   "author": "OceanAI Editorial Team",
   "description": "《智慧之海》探討智慧、系統、人機關係、社會與文明的演進。",
+  "descriptionEn": "The Ocean of Intelligence explores the evolution of intelligence, systems, human–machine relations, society, and civilization.",
   "languageLabel": "English / 繁體中文",
   "partCount": 6,
   "defaultReadingMode": "bilingual",
   "publication": {
     "status": "Revising",
     "statusLabel": "持續修訂中",
+    "statusLabelEn": "Revising",
     "version": "v1.9a–R2",
     "updated": "2026-09-02"
   },

@@ -1,6 +1,6 @@
 ---
 import BaseLayout from "../../../layouts/BaseLayout.astro";
-import { getBookManifests, getBookUnits, type BookManifest } from "../../../lib/book";
+import { getBookManifests, getBookUnits, splitBilingualLabel, type BookManifest } from "../../../lib/book";
 
 export function getStaticPaths() {
   return getBookManifests().map((book) => ({ params: { book: book.slug }, props: { book } }));
@@ -9,54 +9,55 @@ export function getStaticPaths() {
 interface Props { book: BookManifest }
 const { book } = Astro.props;
 const units = getBookUnits(book.slug);
-const groups = Object.entries(Object.groupBy(units, (unit) => unit.part));
+const groups = Object.entries(Object.groupBy(units, (unit) => unit.part)).map(([part, groupedUnits]) => {
+  const items = groupedUnits ?? [];
+  const partUnit = items.find((unit) => /^part-/u.test(unit.slug));
+  const partLabel = splitBilingualLabel(part);
+  const partTitle = partUnit ? splitBilingualLabel(partUnit.title) : partLabel;
+  const partCode = partLabel.en.match(/^Part\s+[IVX]+$/iu)?.[0];
+  const enSubtitle = partUnit ? partTitle.en.replace(/^Part\s+[IVX]+\s*·?\s*/iu, "") : "";
+  const zhSubtitle = partCode ? (partUnit ? partTitle.zh : partLabel.zh).replace(/^Part\s+[IVX]+\s*·?\s*/iu, "") : "";
+  return { partLabel, partCode, partUnit, enSubtitle, zhSubtitle, items: items.filter((unit) => unit !== partUnit) };
+});
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 ---
 <BaseLayout title={`目錄｜${book.title}`} description={`${book.title}完整線上閱讀目錄。`}>
   <section class="contents shell">
-    <nav class="breadcrumbs" aria-label="麵包屑"><a href={`${base}/books/${book.slug}/`}>{book.title}</a><span>/</span><span aria-current="page">目錄</span></nav>
-    <header><p class="eyebrow">TABLE OF CONTENTS</p><h1>目錄</h1><p>{units.length} 個閱讀單元</p></header>
-    <div class="contents-search">
-      <label for="contents-query">搜尋本書目錄</label>
-      <input id="contents-query" type="search" placeholder="章名、Part 或關鍵字" autocomplete="off" />
-      <p id="contents-results" role="status" aria-live="polite">顯示全部 {units.length} 個閱讀單元</p>
-    </div>
-    {groups.map(([part, items]) => (
-      <section class="contents-group" data-contents-group>
-        <h2>{part}</h2>
+    <nav class="breadcrumbs" aria-label="Breadcrumb / 麵包屑"><a href={`${base}/books/${book.slug}/`}><span data-language="en">{book.titleEn}</span><span data-language="zh">{book.title}</span></a><span>/</span><span aria-current="page"><span data-language="en">CONTENTS</span><span data-language="zh">目錄</span></span></nav>
+    <header><p class="eyebrow"><span data-language="en">INDEX / {units.length} ENTRIES</span><span data-language="zh">索引 / {units.length} 個條目</span></p><h1><span data-language="en">Contents</span><span data-language="zh">目錄</span></h1></header>
+    {groups.map(({ partLabel, partCode, partUnit, enSubtitle, zhSubtitle, items }) => (
+      <section class="contents-group">
+        <h2>
+          {partUnit ? <a href={`${base}/books/${book.slug}/read/${partUnit.slug}/`}>
+            <span class="contents-part-name">{partCode ? <span>{partCode}</span> : <><span data-language="en">{partLabel.en}</span>{partLabel.zh && <span data-language="zh">{partLabel.zh}</span>}</>}</span>
+            <small>{enSubtitle && <span data-language="en">{enSubtitle}</span>}{zhSubtitle && <span data-language="zh">{zhSubtitle}</span>}</small>
+          </a> : <span class="contents-part-heading">
+            <span class="contents-part-name">{partCode ? <span>{partCode}</span> : <><span data-language="en">{partLabel.en}</span>{partLabel.zh && <span data-language="zh">{partLabel.zh}</span>}</>}</span>
+            {zhSubtitle && <small><span data-language="zh">{zhSubtitle}</span></small>}
+          </span>}
+        </h2>
         <ol>
-          {items?.map((unit) => (
-            <li data-contents-item><a href={`${base}/books/${book.slug}/read/${unit.slug}/`} data-unit={unit.slug}><span>{unit.label}</span><strong>{unit.title}</strong><small>{unit.minutes} 分鐘</small></a></li>
-          ))}
+          {items.map((unit) => {
+            const title = splitBilingualLabel(unit.title);
+            const chapter = title.en.match(/^Chapter\s+(\d+)\s*[·:—–-]\s*(.+)$/iu);
+            const number = chapter?.[1] ?? (unit.slug === "preface" ? "00" : "—");
+            const titleEn = chapter?.[2] ?? title.en;
+            return <li><a href={`${base}/books/${book.slug}/read/${unit.slug}/`} data-unit={unit.slug}>
+              <span class="contents-number">{number}</span>
+              <strong>{titleEn && <span lang="en" data-language="en">{titleEn}</span>}{(title.zh || unit.label) && <span lang="zh-Hant" data-language="zh">{title.zh || unit.label}</span>}</strong>
+              <b aria-hidden="true">→</b>
+            </a></li>;
+          })}
         </ol>
       </section>
     ))}
   </section>
   <script>
-    const section = document.querySelector<HTMLElement>(".contents");
-    const input = document.querySelector<HTMLInputElement>("#contents-query");
-    const status = document.querySelector<HTMLElement>("#contents-results");
-    const items = [...document.querySelectorAll<HTMLElement>("[data-contents-item]")];
-    if (section && input && status) {
-      const bookSlug = location.pathname.match(/\/books\/([^/]+)/)?.[1];
-      try {
-        const saved = bookSlug ? JSON.parse(localStorage.getItem(`oceanai-reading:${bookSlug}`) ?? "null") as { unit?: string } | null : null;
-        const current = saved?.unit ? document.querySelector<HTMLAnchorElement>(`[data-unit="${CSS.escape(saved.unit)}"]`) : null;
-        if (current) { current.setAttribute("aria-current", "page"); current.dataset.currentLabel = "上次閱讀"; }
-      } catch {}
-      input.addEventListener("input", () => {
-        const query = input.value.trim().toLocaleLowerCase();
-        let visible = 0;
-        items.forEach((item) => {
-          const matches = !query || item.textContent?.toLocaleLowerCase().includes(query);
-          item.hidden = !matches;
-          if (matches) visible += 1;
-        });
-        document.querySelectorAll<HTMLElement>("[data-contents-group]").forEach((group) => {
-          group.hidden = !group.querySelector("[data-contents-item]:not([hidden])");
-        });
-        status.textContent = query ? `找到 ${visible} 個閱讀單元` : `顯示全部 ${visible} 個閱讀單元`;
-      });
-    }
+    const bookSlug = location.pathname.match(/\/books\/([^/]+)/)?.[1];
+    try {
+      const saved = bookSlug ? JSON.parse(localStorage.getItem(`oceanai-reading:${bookSlug}`) ?? "null") as { unit?: string } | null : null;
+      const current = saved?.unit ? document.querySelector<HTMLAnchorElement>(`[data-unit="${CSS.escape(saved.unit)}"]`) : null;
+      if (current) current.setAttribute("aria-current", "page");
+    } catch {}
   </script>
 </BaseLayout>

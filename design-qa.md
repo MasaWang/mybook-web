@@ -1,50 +1,47 @@
-# Design QA
+# Book Landing Editorial Index — Design QA
 
-- Source visual truth: `audits/visual-verification-2026-09-02/01-desktop-home.png` through `06-mobile-chapter.png`
-- Implementation: revised local build at `http://127.0.0.1:4360/mybook-web/`
-- Viewports: desktop 1440 × 1000 CSS px; mobile 390 × 844 CSS px
-- Pixel density: source and implementation captures use 1× CSS viewport screenshots; no density normalization required
-- State: homepage, contents default state, Chapter 7 bilingual default state
+- Source visual truth: `https://www.dialoguebetweenathinkerandai.com/en/` and `/Users/kriswong/Documents/mybook-web/reference-dialogue-home.png`
+- Rendered implementation: `http://127.0.0.1:4360/mybook-web/books/wisdom-sea/`
+- Browser capture: Codex in-app browser, 1775 × 1492 CSS viewport at 1× density
+- State: light theme; English and Traditional Chinese checked separately
 
 ## Full-view comparison evidence
 
-- P1: Chapter title combines English and Chinese in one heading, producing awkward line breaks and delaying the article body below the fold.
-- P2: Mobile chapter breadcrumb repeats the complete bilingual title.
-- P2: Mobile homepage hero phrase breaks at weak semantic points and the book card destination is unclear beside the reading links.
-- P2: Mobile contents rows crowd multi-line titles against the reading-time column.
+The source presents its secondary destinations as vertically stacked editorial index articles rather than compact utility rows. The implementation now follows the same structure: each destination has a numbered heading, bracketed context label, one-sentence description, bracketed CTA, approximately 12rem of vertical space, a dashed separator, and an oversized arrow anchored at the lower right.
 
-## Focused region comparison evidence
+The earlier empty gap before the footer is replaced by meaningful editorial rhythm. The book-specific choices intentionally remain Preface, Chapter One, and Source Manuscript; Contents is excluded by request.
 
-The affected regions are legible in the full viewport captures, so separate crops are not required for the first pass.
+## Focused-region comparison evidence
+
+The index region was inspected at readable scale in both English and Traditional Chinese. Heading weight, compact metadata-sized annotation, paragraph measure, CTA placement, dashed rules, and lower-right arrow position match the source pattern. No image assets are involved.
 
 ## Required fidelity surfaces
 
-- Typography: editorial serif/sans pairing is retained; display-title sizing and wrapping require correction.
-- Spacing: overall shell and reading measure are retained; above-the-fold vertical density requires correction.
-- Colors: existing paper, ink, sea, muted, and line tokens are retained.
-- Images: the audited screens contain no editorial image assets.
-- Copy: manuscript text is retained; only interface presentation and destination labeling may change.
+- Fonts and typography: existing Courier publication stack retained; headings are bold and uppercase where appropriate, with smaller bracketed annotations.
+- Spacing and layout rhythm: three vertical articles use the source's 12rem minimum height and 2rem vertical padding.
+- Colors and visual tokens: existing paper, ink, muted text, OceanAI accent, and dark-mode tokens remain unchanged.
+- Image quality and asset fidelity: no raster or icon assets are required for this section.
+- Copy and content: all three links use book-specific bilingual copy and exclude Contents as requested.
+
+## Findings
+
+No actionable P0, P1, or P2 mismatch remains for the scoped editorial-index section.
 
 ## Comparison history
 
-### Iteration 1
+- Before: three destinations were compressed into single-line table-like rows with weak editorial hierarchy.
+- Pass 1: replaced rows with full editorial index articles, descriptions, bracketed CTAs, and lower-right arrows.
+- Post-fix: English and Traditional Chinese renders preserve hierarchy and spacing; the Preface link was activated successfully and reached the intended reading page.
 
-- Earlier findings: four P1/P2 issues listed above.
-- Fixes made: separated English and Chinese chapter titles, reduced the chapter header footprint, replaced the mobile breadcrumb title with `Chapter 7`, clarified the book-card destination, corrected mobile homepage line wrapping, and stacked mobile contents metadata.
-- Post-fix evidence: `audits/visual-verification-2026-09-02/revised/01-desktop-home.png` through `06-mobile-chapter.png`.
+## Interaction and runtime checks
 
-### Iteration 2
+- Preface navigation tested successfully.
+- Chapter One and Source Manuscript destinations verified from rendered link targets.
+- English and Traditional Chinese visibility states verified.
+- Production build passed with 34 pages and publication validation passed with 34 bilingual pages.
 
-- Earlier findings: the first mobile homepage revision left the final character isolated; the compact breadcrumb showed the Chinese label rather than the chapter number.
-- Fixes made: reduced the mobile hero title to 2.2rem and allowed the second phrase to occupy the full content width; derived the compact breadcrumb from the English `Chapter N` prefix; reduced mobile reader-header vertical padding.
-- Post-fix evidence: `audits/visual-verification-2026-09-02/revised/04-mobile-home-v2.png` and `06-mobile-chapter-v2.png`.
+## Follow-up polish
 
-## Final verification
-
-- Full-view comparison: passed at desktop 1440 × 1000 and mobile 390 × 844.
-- Focused regions: mobile homepage hero and Chapter 7 header were re-captured after the second iteration; no additional focused crop was needed because both regions are fully legible at 1×.
-- Primary interactions: contents search returns one result for `雲端`, Chapter 7 navigation succeeds, EN mode becomes pressed, and the mobile page has no horizontal overflow.
-- Console: no actionable console errors; a generic resource-load message was observed without a failed page response and did not affect the flow.
-- Remaining P3: the homepage retains deliberate editorial whitespace; the Chapter 7 English title still spans three lines on mobile but now breaks at phrase boundaries and preserves the Chinese title as a separate line.
+No P3 follow-up is required for this scoped change.
 
 final result: passed

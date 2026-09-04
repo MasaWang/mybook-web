@@ -1,6 +1,6 @@
 ---
 import BaseLayout from "../../../../layouts/BaseLayout.astro";
-import { getBookManifests, getBookUnits, type BookManifest, type ReadingUnit } from "../../../../lib/book";
+import { getBookManifests, getBookUnits, splitBilingualLabel, type BookManifest, type ReadingUnit } from "../../../../lib/book";
 
 export function getStaticPaths() {
   return getBookManifests().flatMap((book) => {
@@ -42,64 +42,46 @@ const alternateLanguages = unit.hasBilingualContent ? [
   { hrefLang: "zh-Hant", href: `${chapterUrl}?lang=zh` },
   { hrefLang: "x-default", href: chapterUrl },
 ] : [];
-const [displayTitleEn, displayTitleZh] = unit.title.split("｜").map((title) => title.trim());
+const { en: displayTitleEn, zh: displayTitleZh } = splitBilingualLabel(unit.title);
+const localizedTitleZh = displayTitleZh || (unit.slug === "preface" ? "前言" : "");
 const compactTitle = displayTitleEn.match(/^Chapter\s+\d+/)?.[0] ?? unit.label ?? displayTitleEn;
+const displayPart = splitBilingualLabel(unit.part);
+const previousTitle = previous ? splitBilingualLabel(previous.title) : undefined;
+const nextTitle = next ? splitBilingualLabel(next.title) : undefined;
 ---
 <BaseLayout title={`${unit.title}｜${book.title}`} description={`${book.title} ${unit.part}：${unit.title}`} structuredData={structuredData} alternateLanguages={alternateLanguages}>
   <article class="reader shell" data-book={book.slug} data-unit={unit.slug} data-default-mode={book.defaultReadingMode}>
-    <nav class="breadcrumbs" aria-label="麵包屑"><a href={`${base}/books/${book.slug}/`}>{book.title}</a><span>/</span><a href={`${base}/books/${book.slug}/contents/`}>目錄</a><span>/</span><span class="breadcrumb-title" aria-current="page"><span class="breadcrumb-title-full">{unit.title}</span><span class="breadcrumb-title-compact">{compactTitle}</span></span></nav>
+    <nav class="breadcrumbs" aria-label="Breadcrumb / 麵包屑"><a href={`${base}/books/${book.slug}/`}><span data-language="en">{book.titleEn}</span><span data-language="zh">{book.title}</span></a><span>/</span><a href={`${base}/books/${book.slug}/contents/`}><span data-language="en">CONTENTS</span><span data-language="zh">目錄</span></a><span>/</span><span class="breadcrumb-title" aria-current="page"><span class="breadcrumb-title-full"><span data-language="en">{displayTitleEn}</span>{localizedTitleZh && <span data-language="zh">{localizedTitleZh}</span>}</span><span class="breadcrumb-title-compact">{compactTitle}</span></span></nav>
     <header class="reader-header">
-      <p class="eyebrow">{unit.part} · 約 {unit.minutes} 分鐘</p>
-      <h1 class:list={{ "bilingual-title": displayTitleZh }}><span>{displayTitleEn}</span>{displayTitleZh && <span lang="zh-Hant">{displayTitleZh}</span>}</h1>
-      <p class="publication-note"><span>{book.publication.status}</span> · Updated <time datetime={book.publication.updated}>{book.publication.updated}</time></p>
+      <div class="reader-register">
+        <p class="eyebrow">
+          {unit.slug === "preface" ? <><span data-language="en">FRONT MATTER</span><span data-language="zh">書首</span></> : <><span data-language="en">RAW READING FILE</span><span data-language="zh">原始閱讀檔案</span> · <span data-language="en">{displayPart.en}</span>{displayPart.zh && <span data-language="zh">{displayPart.zh}</span>}</>}
+        </p>
+        <p><span data-language="en">UNIT</span><span data-language="zh">單元</span> {String(index + 1).padStart(2, "0")} / {String(total).padStart(2, "0")} · {unit.minutes} <span data-language="en">MIN READ</span><span data-language="zh">分鐘閱讀</span></p>
+        <p class="publication-note"><span><span data-language="en">{book.publication.status}</span><span data-language="zh">{book.publication.statusLabel}</span></span> · <span data-language="en">UPDATED</span><span data-language="zh">更新</span> <time datetime={book.publication.updated}>{book.publication.updated}</time></p>
+      </div>
+      <h1 class:list={{ "bilingual-title": localizedTitleZh }}>
+        <span class="title-en" lang="en" data-language="en">{displayTitleEn}</span>
+        {localizedTitleZh && <span class="title-zh" lang="zh-Hant" data-language="zh">{localizedTitleZh}</span>}
+      </h1>
     </header>
     <div class="reading-progress" aria-label={`閱讀單元 ${index + 1}，共 ${total} 個`}><span style={`width:${((index + 1) / total) * 100}%`}></span></div>
-    {unit.hasBilingualContent && (
-      <nav class="language-switcher" aria-label="閱讀語言">
-        <button type="button" data-mode="en" aria-pressed="false">EN</button>
-        <button type="button" data-mode="zh" aria-pressed="false">繁中</button>
-        <button type="button" data-mode="bilingual" aria-pressed="true">EN + 繁中</button>
-      </nav>
-    )}
     <div class="reading-layout">
-      <details class="reader-toc" open>
-        <summary>本書目錄</summary>
-        <nav aria-label="書籍目錄">
-          {getBookUnits(book.slug).map((item) => (
-            <a href={`${base}/books/${book.slug}/read/${item.slug}/`} aria-current={item.slug === unit.slug ? "page" : undefined}>
-              <small>{item.part}</small><span>{item.title}</span>
-            </a>
-          ))}
-        </nav>
-      </details>
       <div class="prose">
-        {unit.content.introHtml && <section class="prose-intro" set:html={unit.content.introHtml} />}
+        {unit.content.introHtml && <section class="prose-intro" data-language={unit.hasBilingualContent ? "en" : undefined} set:html={unit.content.introHtml} />}
         {unit.content.enHtml && <section lang="en" data-language="en" set:html={unit.content.enHtml} />}
         {unit.content.zhHtml && <section lang="zh-Hant" data-language="zh" set:html={unit.content.zhHtml} />}
       </div>
     </div>
     <nav class="chapter-nav" aria-label="章節導覽">
-      <div>{previous && <a href={`${base}/books/${book.slug}/read/${previous.slug}/`}><small>← 上一篇</small><strong>{previous.title}</strong></a>}</div>
-      <div>{next && <a href={`${base}/books/${book.slug}/read/${next.slug}/`}><small>下一篇 →</small><strong>{next.title}</strong></a>}</div>
+      <div>{previous && previousTitle && <a href={`${base}/books/${book.slug}/read/${previous.slug}/`}><small><span data-language="en">← PREVIOUS</span><span data-language="zh">← 上一篇</span></small><strong><span data-language="en">{previousTitle.en}</span>{previousTitle.zh && <span data-language="zh">{previousTitle.zh}</span>}</strong></a>}</div>
+      <div>{next && nextTitle && <a href={`${base}/books/${book.slug}/read/${next.slug}/`}><small><span data-language="en">NEXT →</span><span data-language="zh">下一篇 →</span></small><strong><span data-language="en">{nextTitle.en}</span>{nextTitle.zh && <span data-language="zh">{nextTitle.zh}</span>}</strong></a>}</div>
     </nav>
   </article>
   <script>
     const article = document.querySelector<HTMLElement>("[data-book][data-unit]");
-    const buttons = [...document.querySelectorAll<HTMLButtonElement>("[data-mode]")];
     if (article) {
       const positionKey = `oceanai-reading:${article.dataset.book}`;
-      const modeKey = `oceanai-reading-mode:${article.dataset.book}`;
-      const supportedModes = new Set(["en", "zh", "bilingual"]);
-      const requestedMode = new URLSearchParams(location.search).get("lang");
-      const savedMode = localStorage.getItem(modeKey);
-      const mode = requestedMode && supportedModes.has(requestedMode) ? requestedMode : savedMode && supportedModes.has(savedMode) ? savedMode : article.dataset.defaultMode ?? "bilingual";
-      const setMode = (nextMode: string) => {
-        document.documentElement.dataset.readingMode = nextMode;
-        buttons.forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.mode === nextMode)));
-        localStorage.setItem(modeKey, nextMode);
-      };
-      setMode(mode);
-      buttons.forEach((button) => button.addEventListener("click", () => setMode(button.dataset.mode ?? "bilingual")));
       let savedPosition: { unit?: string; scrollY?: number } | undefined;
       try { savedPosition = JSON.parse(localStorage.getItem(positionKey) ?? "null") ?? undefined; } catch {}
       const savedScrollY = savedPosition?.scrollY;
@@ -113,8 +95,6 @@ const compactTitle = displayTitleEn.match(/^Chapter\s+\d+/)?.[0] ?? unit.label ?
       addEventListener("scroll", () => {
         if (!savePending) { savePending = true; requestAnimationFrame(savePosition); }
       }, { passive: true });
-      const toc = document.querySelector<HTMLDetailsElement>(".reader-toc");
-      if (toc && matchMedia("(max-width: 56rem)").matches) toc.open = false;
     }
   </script>
 </BaseLayout>

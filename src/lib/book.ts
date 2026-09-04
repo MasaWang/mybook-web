@@ -11,13 +11,16 @@ export type ReadingMode = "en" | "zh" | "bilingual";
 export type BookManifest = {
   slug: string;
   title: string;
+  titleEn: string;
   subtitle: string;
+  subtitleEn: string;
   author: string;
   description: string;
+  descriptionEn: string;
   languageLabel: string;
   partCount: number;
   defaultReadingMode: ReadingMode;
-  publication: { status: string; statusLabel: string; version: string; updated: string };
+  publication: { status: string; statusLabel: string; statusLabelEn: string; version: string; updated: string };
   source: { repository: string; ref: string; revision?: string; directory: string };
 };
 
@@ -32,6 +35,15 @@ export type ReadingUnit = {
 };
 
 export type SourceRevision = { book: string; repository: string; ref: string; revision: string };
+
+export function splitBilingualLabel(value: string) {
+  const [en, ...zh] = value.split("｜");
+  if (zh.length) return { en: en.trim(), zh: zh.join("｜").trim() };
+  if (value.trim() === "前言") return { en: "Front Matter", zh: "前言" };
+  const part = value.match(/^(Part\s+[IVX]+)\s*·\s*(.+)$/u);
+  if (part && /[\u3400-\u9fff]/u.test(part[2])) return { en: part[1], zh: `${part[1]} · ${part[2]}` };
+  return /[\u3400-\u9fff]/u.test(value) ? { en: "", zh: value.trim() } : { en: value.trim(), zh: "" };
+}
 
 const roman: Record<string, number> = { I: 1, II: 2, III: 3, IV: 4, V: 5, VI: 6 };
 const editorialEmoji = /\p{Extended_Pictographic}\uFE0F?/gu;

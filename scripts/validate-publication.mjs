@@ -37,15 +37,15 @@ for (const path of htmlFiles) {
   }
 }
 
-const bilingualReaders = htmlFiles.filter((path) => {
+const bilingualPages = htmlFiles.filter((path) => {
   const html = readFileSync(path, "utf8");
   return html.includes('data-language="en"') && html.includes('data-language="zh"');
 });
 
-for (const path of bilingualReaders) {
+for (const path of bilingualPages) {
   const html = readFileSync(path, "utf8");
   for (const mode of ["en", "zh", "bilingual"]) {
-    if (!html.includes(`data-mode="${mode}"`)) failures.push(`${relative(outputRoot, path)}: missing ${mode} reading control`);
+    if (!html.includes(`<option value="${mode}"`)) failures.push(`${relative(outputRoot, path)}: missing ${mode} language option`);
   }
 }
 
@@ -57,11 +57,11 @@ for (const path of htmlFiles.filter((path) => path.includes(`${join("read", "")}
 
 if (!htmlFiles.some((path) => readFileSync(path, "utf8").includes('property="og:image"'))) failures.push("Missing social preview metadata");
 
-if (bilingualReaders.length === 0) failures.push("No bilingual reader output was generated");
+if (bilingualPages.length === 0) failures.push("No bilingual output was generated");
 
 if (failures.length) {
   console.error(`Publication validation failed:\n${failures.map((failure) => `- ${failure}`).join("\n")}`);
   process.exit(1);
 }
 
-console.log(`Publication validation passed (${htmlFiles.length} pages, ${bilingualReaders.length} bilingual readers).`);
+console.log(`Publication validation passed (${htmlFiles.length} pages, ${bilingualPages.length} bilingual pages).`);

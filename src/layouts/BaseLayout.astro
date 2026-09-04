@@ -41,31 +41,77 @@ const jsonLd = structuredData ? JSON.stringify(structuredData).replace(/</g, "\\
         } catch {
           document.documentElement.dataset.theme = "light";
         }
+        const supportedModes = new Set(["en", "zh", "bilingual"]);
+        const requestedMode = new URLSearchParams(location.search).get("lang");
+        let savedMode = null;
+        try { savedMode = localStorage.getItem("oceanai-language"); } catch {}
+        const mode = requestedMode && supportedModes.has(requestedMode)
+          ? requestedMode
+          : savedMode && supportedModes.has(savedMode) ? savedMode : "bilingual";
+        document.documentElement.dataset.readingMode = mode;
+        document.documentElement.lang = mode === "en" ? "en" : "zh-Hant";
       })();
     </script>
     <title>{title}</title>
   </head>
   <body>
-    <a class="skip-link" href="#main-content">跳至主要內容</a>
+    <a class="skip-link" href="#main-content"><span data-language="en">Skip to content</span><span data-language="zh">跳至主要內容</span></a>
     <header class="site-header shell">
-      <a class="brand" href={`${base}/`}>OCEANAI <span>BOOKS</span></a>
+      <a class="brand" href={`${base}/`}>OceanAI Books</a>
       <nav aria-label="主要導覽">
-        {books.map((book) => <a href={`${base}/books/${book.slug}/`} aria-current={Astro.url.pathname.includes(`/books/${book.slug}/`) ? "page" : undefined}>{book.title}</a>)}
+        {books.map((book) => <a href={`${base}/books/${book.slug}/`} aria-current={Astro.url.pathname.includes(`/books/${book.slug}/`) ? "page" : undefined}><span data-language="en">{book.titleEn}</span><span data-language="zh">{book.title}</span></a>)}
+        <label class="language-picker">
+          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+            <circle cx="12" cy="12" r="9"></circle>
+            <path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"></path>
+          </svg>
+          <span class="visually-hidden">Language / 閱讀語言</span>
+          <select class="language-select" aria-label="Language / 閱讀語言">
+            <option value="en">English</option>
+            <option value="zh">繁體中文</option>
+            <option value="bilingual">English + 繁中</option>
+          </select>
+        </label>
         <button class="theme-toggle" type="button" aria-label="切換至深色模式">深色</button>
       </nav>
     </header>
     <main id="main-content" tabindex="-1"><slot /></main>
     <footer class="site-footer shell">
-      <p>OceanAI 是系統級智慧架構。</p>
-      <p>內容來源：MYBOOK · Markdown-first publishing</p>
+      <hr class="ascii-rule" />
+      <div class="footer-grid">
+        <p>
+          <strong>OceanAI Books</strong>
+          <span data-language="en">RAW DIGITAL EDITION</span>
+          <span data-language="zh">原始數位版本</span>
+          <span>© 2026 MASA WANG</span>
+        </p>
+        <p>
+          <strong><span data-language="en">WRITE IN GITHUB.</span><span data-language="zh">在 GITHUB 撰寫。</span></strong>
+          <span data-language="en">PUBLISH CONTINUOUSLY ON THE WEB.</span>
+          <span data-language="zh">在 GitHub 持續撰寫，在 Web 持續出版。</span>
+        </p>
+        <nav aria-label="頁尾導覽">
+          <a href={`${base}/`}><span data-language="en">LIBRARY</span><span data-language="zh">出版庫</span></a>
+          <a href="#main-content"><span data-language="en">BACK TO TOP</span><span data-language="zh">返回頂部</span></a>
+          <a href="https://github.com/MasaWang/MYBOOK"><span data-language="en">GITHUB / SOURCE MANUSCRIPT</span><span data-language="zh">GITHUB / 原始書稿</span></a>
+        </nav>
+      </div>
+      <div class="footer-note">
+        <p>© 2026 MASA WANG — OceanAI Books</p>
+        <p data-language="en">CONTINUOUS PUBLICATION — Open · Transparent · Long-term.</p>
+        <p data-language="zh">持續出版——開放、透明、長期。</p>
+        <p data-language="en">This library preserves the manuscript's ongoing revisions; the public edition follows the update date shown on this website.</p>
+        <p data-language="zh">本出版庫保留書稿持續修訂的痕跡；公開版本以網站所示更新日期為準。</p>
+      </div>
     </footer>
     <script>
       const themeToggle = document.querySelector<HTMLButtonElement>(".theme-toggle");
       const updateThemeToggle = () => {
         if (!themeToggle) return;
         const dark = document.documentElement.dataset.theme === "dark";
-        themeToggle.textContent = dark ? "淺色" : "深色";
-        themeToggle.setAttribute("aria-label", dark ? "切換至淺色模式" : "切換至深色模式");
+        const mode = document.documentElement.dataset.readingMode ?? "bilingual";
+        themeToggle.textContent = mode === "en" ? (dark ? "LIGHT" : "DARK") : mode === "zh" ? (dark ? "淺色" : "深色") : (dark ? "LIGHT / 淺色" : "DARK / 深色");
+        themeToggle.setAttribute("aria-label", dark ? "Switch to light mode / 切換至淺色模式" : "Switch to dark mode / 切換至深色模式");
         themeToggle.setAttribute("aria-pressed", String(dark));
       };
       updateThemeToggle();
@@ -75,6 +121,18 @@ const jsonLd = structuredData ? JSON.stringify(structuredData).replace(/</g, "\\
         try { localStorage.setItem("oceanai-theme", nextTheme); } catch {}
         updateThemeToggle();
       });
+      const languageSelect = document.querySelector<HTMLSelectElement>(".language-select");
+      const setLanguageMode = (mode: string) => {
+        if (!new Set(["en", "zh", "bilingual"]).has(mode)) return;
+        document.documentElement.dataset.readingMode = mode;
+        document.documentElement.lang = mode === "en" ? "en" : "zh-Hant";
+        if (languageSelect) languageSelect.value = mode;
+        try { localStorage.setItem("oceanai-language", mode); } catch {}
+        updateThemeToggle();
+        dispatchEvent(new CustomEvent("oceanai:languagechange", { detail: { mode } }));
+      };
+      setLanguageMode(document.documentElement.dataset.readingMode ?? "bilingual");
+      languageSelect?.addEventListener("change", () => setLanguageMode(languageSelect.value));
       document.querySelectorAll<HTMLAnchorElement>("[data-continue-book]").forEach((link) => {
         const book = link.dataset.continueBook;
         const saved = book ? localStorage.getItem(`oceanai-reading:${book}`) : null;
