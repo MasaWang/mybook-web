@@ -108,6 +108,9 @@ a:focus-visible { outline: 3px solid var(--sea); outline-offset: 4px; }
 .book-manifest { max-width: 60rem; }
 .book-hero h1 { max-width: 18ch; margin-block: 1.5rem; font-size: clamp(2.6rem, 5vw, 5.2rem); font-weight: 700; letter-spacing: .01em; line-height: .95; text-transform: uppercase; overflow-wrap: anywhere; }
 .book-subtitle { max-width: 32rem; color: var(--muted); font-family: var(--mono); font-size: 1.25rem; }
+.book-core-question { max-width: 52rem; margin-top: clamp(2rem, 4vw, 3.5rem); padding-top: 1.25rem; border-top: var(--rule); font-family: var(--mono); font-size: clamp(1rem, 1.5vw, 1.3rem); font-weight: 700; line-height: 1.5; }
+.book-core-question [data-language] { display: block; }
+html[data-reading-mode="bilingual"] .book-core-question [data-language="zh"] { margin-top: .8rem; color: var(--muted); font-size: .88em; }
 .book-author { margin-top: 1.5rem; color: var(--muted); font-size: .9rem; }
 .book-actions { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-block: var(--rule); padding-inline: 0; }
 .book-action-cell { display: flex; min-width: 0; min-height: 9rem; flex-direction: column; padding: 1.5rem var(--gutter); border-right: var(--rule); }
@@ -119,6 +122,8 @@ a:focus-visible { outline: 3px solid var(--sea); outline-offset: 4px; }
 .book-statement-copy { max-width: 58ch; font-family: var(--mono); font-size: clamp(1rem, 1.35vw, 1.18rem); line-height: 1.65; }
 .book-statement-copy p { margin: 0; }
 .book-statement-copy p + p { margin-top: 1.35em; }
+.book-statement-copy [data-language] { display: block; }
+html[data-reading-mode="bilingual"] .book-statement-copy [data-language="zh"] { margin-top: .3em; }
 .book-related-links { padding-block: 0; }
 .book-related-links article { position: relative; min-height: 12rem; padding-block: 2rem; border-bottom: var(--rule); }
 .book-related-links h2 { margin: 0; font-size: 1.08rem; line-height: 1.35; }

@@ -14,6 +14,8 @@ export type BookManifest = {
   titleEn: string;
   subtitle: string;
   subtitleEn: string;
+  coreQuestion: string;
+  coreQuestionEn: string;
   author: string;
   description: string;
   descriptionEn: string;
