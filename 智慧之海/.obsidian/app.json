@@ -1,0 +1,18 @@
+{
+  "legacyEditor": false,
+  "livePreview": true,
+  "defaultViewMode": "preview",
+  "attachmentFolderPath": "附件",
+  "newFileLocation": "folder",
+  "newFileFolderPath": "筆記",
+  "alwaysUpdateLinks": true,
+  "showInlineTitle": true,
+  "readableLineLength": true,
+  "strictLineBreaks": false,
+  "showFrontmatter": true,
+  "showIndentGuide": true,
+  "spellcheck": false,
+  "useMarkdownLinks": false,
+  "newLinkFormat": "relative",
+  "promptDelete": false
+}

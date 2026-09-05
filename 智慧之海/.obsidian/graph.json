@@ -1,0 +1,66 @@
+{
+  "collapse-filter": false,
+  "search": "tag:#智慧之海",
+  "showTags": true,
+  "showAttachments": true,
+  "hideUnresolved": true,
+  "showOrphans": false,
+  "collapse-color-groups": false,
+  "colorGroups": [
+    {
+      "query": "tag:#Front-Matter",
+      "color": {
+        "a": 1,
+        "rgb": 12173790
+      }
+    },
+    {
+      "query": "tag:#Part-I",
+      "color": {
+        "a": 1,
+        "rgb": 8900331
+      }
+    },
+    {
+      "query": "tag:#Part-II",
+      "color": {
+        "a": 1,
+        "rgb": 6710932
+      }
+    },
+    {
+      "query": "tag:#Part-III",
+      "color": {
+        "a": 1,
+        "rgb": 13664816
+      }
+    },
+    {
+      "query": "tag:#Part-IV",
+      "color": {
+        "a": 1,
+        "rgb": 5742836
+      }
+    },
+    {
+      "query": "tag:#Part-V",
+      "color": {
+        "a": 1,
+        "rgb": 5851990
+      }
+    },
+    {
+      "query": "tag:#Part-VI",
+      "color": {
+        "a": 1,
+        "rgb": 11047800
+      }
+    }
+  ],
+  "collapse-display": false,
+  "showArrow": true,
+  "textFadeMultiplier": -0.3,
+  "nodeSizeMultiplier": 1.1,
+  "lineSizeMultiplier": 1,
+  "collapse-forces": true
+}

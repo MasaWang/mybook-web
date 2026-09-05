@@ -1,0 +1,11 @@
+{
+  "theme": "moonstone",
+  "accentColor": "#3d6b8a",
+  "baseFontSize": 16,
+  "translucency": false,
+  "cssTheme": "",
+  "interfaceFontFamily": "",
+  "textFontFamily": "",
+  "monospaceFontFamily": "",
+  "showViewHeader": true
+}
