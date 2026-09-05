@@ -20,8 +20,8 @@
     "updated": "2026-09-02"
   },
   "source": {
-    "repository": "https://github.com/MasaWang/MYBOOK.git",
-    "ref": "codex/zhihui-zhihai-editorial-cleanup",
+    "repository": "https://github.com/MasaWang/MYBOOK-EDITORIAL.git",
+    "ref": "main",
     "revision": "8e9f8dfe94cf70131e7d6866680929c808ca9347",
     "directory": "智慧之海"
   }
