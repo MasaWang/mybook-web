@@ -1,0 +1,115 @@
+{
+  "main": {
+    "id": "main",
+    "type": "split",
+    "children": [
+      {
+        "id": "center",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "home",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "智慧之海.md",
+                "mode": "preview",
+                "source": false
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "left",
+    "type": "split",
+    "children": [
+      {
+        "id": "left-tabs",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "files",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {}
+            }
+          },
+          {
+            "id": "search",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": ""
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical",
+    "width": 320
+  },
+  "right": {
+    "id": "right",
+    "type": "split",
+    "children": [
+      {
+        "id": "right-tabs",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "backlinks",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "智慧之海.md"
+              }
+            }
+          },
+          {
+            "id": "outline",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "智慧之海.md"
+              }
+            }
+          },
+          {
+            "id": "graph",
+            "type": "leaf",
+            "state": {
+              "type": "localgraph",
+              "state": {
+                "file": "智慧之海.md"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical",
+    "width": 300,
+    "collapsed": false
+  },
+  "left-ribbon": {
+    "hiddenItems": {}
+  },
+  "active": "home",
+  "lastOpenFiles": [
+    "智慧之海.md",
+    "00_Contents_目錄.md",
+    "01_Opening_開篇.md",
+    "02_Preface_前言.md",
+    "完整版.md"
+  ]
+}
