@@ -41,12 +41,17 @@ const structuredData = {
       </dl>
       <p aria-hidden="true">================================================</p>
     </aside>
-    <div class="book-manifest">
-      <p class="eyebrow">OCEANAI BOOK · <span data-language="en">{book.publication.statusLabelEn}</span><span data-language="zh">{book.publication.statusLabel}</span></p>
-      <h1><span lang="en" data-language="en">{book.titleEn}<br />—</span><span lang="zh-Hant" data-language="zh">{book.title}<br />—</span></h1>
-      <p class="book-subtitle"><span lang="en" data-language="en">{book.subtitleEn}</span><span lang="zh-Hant" data-language="zh">{book.subtitle}</span></p>
-      <p class="book-core-question"><span lang="en" data-language="en">{book.coreQuestionEn}</span><span lang="zh-Hant" data-language="zh">{book.coreQuestion}</span></p>
-      <p class="book-author">{book.author}</p>
+    <div class="book-hero-grid">
+      <div class="book-manifest">
+        <p class="eyebrow">OCEANAI BOOK · <span data-language="en">{book.publication.statusLabelEn}</span><span data-language="zh">{book.publication.statusLabel}</span></p>
+        <h1><span lang="en" data-language="en">{book.titleEn}<br />—</span><span lang="zh-Hant" data-language="zh">{book.title}<br />—</span></h1>
+        <p class="book-subtitle"><span lang="en" data-language="en">{book.subtitleEn}</span><span lang="zh-Hant" data-language="zh">{book.subtitle}</span></p>
+        <p class="book-author">{book.author}</p>
+      </div>
+      <aside class="book-question" aria-label="本書核心問題">
+        <p class="thought-label">WS-CORE-001</p>
+        <p class="book-core-question"><span lang="en" data-language="en">{book.coreQuestionEn}</span><span lang="zh-Hant" data-language="zh">{book.coreQuestion}</span></p>
+      </aside>
     </div>
   </section>
   <section class="book-actions shell" aria-label="開始閱讀">
@@ -57,6 +62,7 @@ const structuredData = {
   <section class="book-statement shell">
     <p class="eyebrow"><span data-language="en">CORE PROPOSITION</span><span data-language="zh">本書核心觀點</span></p>
     <div class="book-statement-copy">
+      <p><span data-language="en">The Architecture of Intelligence and the Ethics of Continuity.</span><span data-language="zh">智能的架構與連續性倫理。</span></p>
       <p><span data-language="en">AI must move beyond models and screens into devices, Runtime, and physical space.</span><span data-language="zh">AI 必須從模型與螢幕走向設備、Runtime 和物理空間。</span></p>
       <p><span data-language="en">The system must absorb technical complexity rather than transfer it to the user.</span><span data-language="zh">系統必須自行承擔技術複雜性，不能將其轉嫁給使用者。</span></p>
       <p><span data-language="en">Technology must ultimately return to human life, experience, and well-being.</span><span data-language="zh">技術最終必須回到人的生活、體驗與福祉。</span></p>

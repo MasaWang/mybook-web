@@ -95,6 +95,29 @@ const nextTitle = next ? splitBilingualLabel(next.title) : undefined;
       addEventListener("scroll", () => {
         if (!savePending) { savePending = true; requestAnimationFrame(savePosition); }
       }, { passive: true });
+
+      const prefix = `WS-${(article.dataset.unit ?? "TEXT").replace("chapter-", "CH").replace("part-", "PART").toUpperCase()}`;
+      const hashText = (value: string) => {
+        let hash = 2166136261;
+        for (const character of value) {
+          hash ^= character.codePointAt(0) ?? 0;
+          hash = Math.imul(hash, 16777619);
+        }
+        return (hash >>> 0).toString(36).toUpperCase().padStart(7, "0").slice(0, 7);
+      };
+      article.querySelectorAll<HTMLElement>(".prose :is(p, h2, h3, blockquote)").forEach((block) => {
+        const text = block.textContent?.trim();
+        if (!text || block.closest(".footnotes")) return;
+        const thoughtId = `${prefix}-${hashText(text)}`;
+        block.id = thoughtId;
+        block.classList.add("thought-block");
+        const anchor = document.createElement("a");
+        anchor.className = "thought-anchor";
+        anchor.href = `#${thoughtId}`;
+        anchor.textContent = `{#${thoughtId.replace(/^WS-/, "")}}`;
+        anchor.setAttribute("aria-label", `Link to thought ${thoughtId}`);
+        block.append(anchor);
+      });
     }
   </script>
 </BaseLayout>

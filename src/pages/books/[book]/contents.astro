@@ -29,11 +29,10 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
       <section class="contents-group">
         <h2>
           {partUnit ? <a href={`${base}/books/${book.slug}/read/${partUnit.slug}/`}>
-            <span class="contents-part-name">{partCode ? <span>{partCode}</span> : <><span data-language="en">{partLabel.en}</span>{partLabel.zh && <span data-language="zh">{partLabel.zh}</span>}</>}</span>
-            <small>{enSubtitle && <span data-language="en">{enSubtitle}</span>}{zhSubtitle && <span data-language="zh">{zhSubtitle}</span>}</small>
+            <span class="contents-part-name">{partCode ? <><span>{partCode}</span>{zhSubtitle && <span class="contents-part-zh" data-language="zh"> / {zhSubtitle}</span>}</> : <><span data-language="en">{partLabel.en}</span>{partLabel.zh && <span data-language="zh">{partLabel.zh}</span>}</>}</span>
+            <small>{enSubtitle && <span data-language="en">{enSubtitle}</span>}</small>
           </a> : <span class="contents-part-heading">
-            <span class="contents-part-name">{partCode ? <span>{partCode}</span> : <><span data-language="en">{partLabel.en}</span>{partLabel.zh && <span data-language="zh">{partLabel.zh}</span>}</>}</span>
-            {zhSubtitle && <small><span data-language="zh">{zhSubtitle}</span></small>}
+            <span class="contents-part-name">{partCode ? <><span>{partCode}</span>{zhSubtitle && <span class="contents-part-zh" data-language="zh"> / {zhSubtitle}</span>}</> : <><span data-language="en">{partLabel.en}</span>{partLabel.zh && <span data-language="zh">{partLabel.zh}</span>}</>}</span>
           </span>}
         </h2>
         <ol>
