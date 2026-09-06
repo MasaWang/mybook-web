@@ -90,8 +90,12 @@ function cleanTitle(value: string) {
     .trim();
 }
 
-function firstHeading(markdown: string, fallback: string) {
-  return cleanTitle(markdown.match(/^#\s+(.+)$/m)?.[1] ?? fallback);
+function readingUnitTitle(markdown: string, fallback: string) {
+  const headings = [...markdown.matchAll(/^#\s+(.+)$/gm)].map((match) => cleanTitle(match[1]));
+  const primary = headings[0] || cleanTitle(fallback);
+  if (primary.includes("｜")) return primary;
+  const traditionalChinese = headings.slice(1).find((heading) => /[\u3400-\u9fff]/u.test(heading));
+  return traditionalChinese ? `${primary}｜${traditionalChinese}` : primary;
 }
 
 function cleanMarkdownHeading(line: string) {
@@ -140,11 +144,17 @@ function splitLanguages(markdown: string) {
       current = "zh";
       continue;
     }
-    const bilingualHeading = current === "intro" ? line.match(/^(#{1,6}\s+)([^｜]+)｜(.+)$/u) : null;
+    const bilingualHeading = line.match(/^(#{1,6}\s+)([^｜]+)｜(.+)$/u);
     if (bilingualHeading) {
-      sections.en.push(`${bilingualHeading[1]}${bilingualHeading[2].trim()}`);
-      if (hasExplicitLanguageMarkers) sections.zh.push(`${bilingualHeading[1]}${bilingualHeading[3].trim()}`);
-      else current = "en";
+      if (current === "zh") {
+        sections.zh.push(`${bilingualHeading[1]}${bilingualHeading[3].trim()}`);
+      } else if (current === "en") {
+        sections.en.push(`${bilingualHeading[1]}${bilingualHeading[2].trim()}`);
+      } else {
+        sections.en.push(`${bilingualHeading[1]}${bilingualHeading[2].trim()}`);
+        if (hasExplicitLanguageMarkers) sections.zh.push(`${bilingualHeading[1]}${bilingualHeading[3].trim()}`);
+        else current = "en";
+      }
       continue;
     }
     sections[current].push(line);
@@ -189,7 +199,7 @@ function makeUnit(markdown: string, fallback: string, slug: string, part: string
   const words = displayMarkdown.replace(/[#>*_`\[\]()|-]/g, "").length;
   return {
     slug,
-    title: firstHeading(markdown.replace(/^##/, "#"), fallback),
+    title: readingUnitTitle(markdown.replace(/^##/, "#"), fallback),
     part,
     label: cleanTitle(label),
     minutes: Math.max(1, Math.ceil(words / 450)),
