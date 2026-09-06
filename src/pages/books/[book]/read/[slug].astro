@@ -43,7 +43,7 @@ const alternateLanguages = unit.hasBilingualContent ? [
   { hrefLang: "x-default", href: chapterUrl },
 ] : [];
 const { en: displayTitleEn, zh: displayTitleZh } = splitBilingualLabel(unit.title);
-const localizedTitleZh = displayTitleZh || (unit.slug === "preface" ? "前言" : "");
+const localizedTitleZh = displayTitleZh || (unit.slug === "opening" ? "開篇" : unit.slug === "preface" ? "前言" : "");
 const compactTitle = displayTitleEn.match(/^Chapter\s+\d+/)?.[0] ?? unit.label ?? displayTitleEn;
 const displayPart = splitBilingualLabel(unit.part);
 const previousTitle = previous ? splitBilingualLabel(previous.title) : undefined;
@@ -55,7 +55,7 @@ const nextTitle = next ? splitBilingualLabel(next.title) : undefined;
     <header class="reader-header">
       <div class="reader-register">
         <p class="eyebrow">
-          {unit.slug === "preface" ? <><span data-language="en">FRONT MATTER</span><span data-language="zh">書首</span></> : <><span data-language="en">RAW READING FILE</span><span data-language="zh">原始閱讀檔案</span> · <span data-language="en">{displayPart.en}</span>{displayPart.zh && <span data-language="zh">{displayPart.zh}</span>}</>}
+          {["opening", "preface"].includes(unit.slug) ? <><span data-language="en">FRONT MATTER</span><span data-language="zh">書首</span> · <span data-language="en">{unit.slug.toUpperCase()}</span><span data-language="zh">{unit.slug === "opening" ? "開篇" : "前言"}</span></> : <><span data-language="en">RAW READING FILE</span><span data-language="zh">原始閱讀檔案</span> · <span data-language="en">{displayPart.en}</span>{displayPart.zh && <span data-language="zh">{displayPart.zh}</span>}</>}
         </p>
         <p><span data-language="en">UNIT</span><span data-language="zh">單元</span> {String(index + 1).padStart(2, "0")} / {String(total).padStart(2, "0")} · {unit.minutes} <span data-language="en">MIN READ</span><span data-language="zh">分鐘閱讀</span></p>
         <p class="publication-note"><span><span data-language="en">{book.publication.status}</span><span data-language="zh">{book.publication.statusLabel}</span></span> · <span data-language="en">UPDATED</span><span data-language="zh">更新</span> <time datetime={book.publication.updated}>{book.publication.updated}</time></p>

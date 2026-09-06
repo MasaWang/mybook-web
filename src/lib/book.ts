@@ -119,13 +119,19 @@ function splitLanguages(markdown: string) {
   let current: keyof typeof sections = "intro";
 
   for (const line of markdown.split("\n")) {
-    const marker = line.match(/^#{2,3}\s+(?:\*\*)?(EN|ZH|English Version|Chinese Version)(?:\*\*)?\s*$/i)?.[1]?.toLowerCase();
-    if (marker === "en" || marker === "english version") {
+    const marker = line.match(/^#{2,3}\s+(?:\*\*)?(EN|ZH|English Version|Chinese Version|English Source(?:｜American English)?|Traditional Chinese(?:｜繁體中文等值稿)?)(?:\*\*)?\s*$/i)?.[1]?.toLowerCase();
+    if (marker === "en" || marker === "english version" || marker?.startsWith("english source")) {
       current = "en";
       continue;
     }
-    if (marker === "zh" || marker === "chinese version") {
+    if (marker === "zh" || marker === "chinese version" || marker?.startsWith("traditional chinese")) {
       current = "zh";
+      continue;
+    }
+    const bilingualHeading = current === "intro" ? line.match(/^(#{1,6}\s+)([^｜]+)｜(.+)$/u) : null;
+    if (bilingualHeading) {
+      sections.en.push(`${bilingualHeading[1]}${bilingualHeading[2].trim()}`);
+      sections.zh.push(`${bilingualHeading[1]}${bilingualHeading[3].trim()}`);
       continue;
     }
     sections[current].push(line);
@@ -180,7 +186,8 @@ function makeUnit(markdown: string, fallback: string, slug: string, part: string
 
 function makeSlug(sourceRoot: string, path: string) {
   const rel = relative(sourceRoot, path);
-  if (rel === "00_前言與目錄.md") return "preface";
+  if (rel === "01_Opening_開篇.md") return "opening";
+  if (rel === "02_Preface_前言.md") return "preface";
   const flatPart = !rel.includes("/") ? rel.match(/^Part_([IVX]+)_/) : null;
   if (flatPart) return `part-${roman[flatPart[1]]}`;
   const part = rel.match(/Part_([IVX]+)/)?.[1];
@@ -189,7 +196,7 @@ function makeSlug(sourceRoot: string, path: string) {
 }
 
 function partLabel(sourceRoot: string, path: string) {
-  if (basename(path) === "00_前言與目錄.md") return "前言";
+  if (["01_Opening_開篇.md", "02_Preface_前言.md"].includes(basename(path))) return "Front Matter｜書首";
   const sourceName = basename(dirname(path)) === basename(sourceRoot) ? basename(path) : basename(dirname(path));
   const match = sourceName.match(/^Part_([IVX]+)_(.+?)(?:\.md)?$/);
   return match ? `Part ${match[1]} · ${cleanTitle(match[2].replace(/_/g, " "))}` : "附錄";
@@ -198,7 +205,7 @@ function partLabel(sourceRoot: string, path: string) {
 export function getBookUnits(bookSlug: string): ReadingUnit[] {
   const sourceRoot = join(contentRoot, bookSlug);
   const candidates = filesBelow(sourceRoot)
-    .filter((path) => !/[\\/]完整版\.md$/.test(path) && !/[\\/]README\.md$/.test(path))
+    .filter((path) => !/[\\/]完整版\.md$/.test(path) && !/[\\/]README\.md$/.test(path) && !/[\\/]00_Contents_目錄\.md$/.test(path))
     .flatMap((sourcePath) => {
       const markdown = readFileSync(sourcePath, "utf8");
       const fallback = basename(sourcePath, ".md").replace(/^\d+_/, "").replace(/_/g, " ");
@@ -228,7 +235,7 @@ export function getBookUnits(bookSlug: string): ReadingUnit[] {
   }
   return [...unique.values()].sort((a, b) => {
       const partStarts: Record<number, number> = { 1: 0.5, 2: 5.5, 3: 10.5, 4: 15.5, 5: 20.5, 6: 24.5 };
-      const number = (unit: ReadingUnit) => unit.slug === "preface" ? 0 : unit.slug.startsWith("part-") ? partStarts[Number(unit.slug.slice(5))] ?? 99 : Number(unit.slug.slice(8));
+      const number = (unit: ReadingUnit) => unit.slug === "opening" ? -1 : unit.slug === "preface" ? 0 : unit.slug.startsWith("part-") ? partStarts[Number(unit.slug.slice(5))] ?? 99 : Number(unit.slug.slice(8));
       return number(a) - number(b);
   });
 }

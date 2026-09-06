@@ -17,12 +17,12 @@
     "statusLabel": "持續修訂中",
     "statusLabelEn": "Revising",
     "version": "v1.9a–R2",
-    "updated": "2026-09-02"
+    "updated": "2026-09-05"
   },
   "source": {
     "repository": "https://github.com/MasaWang/MYBOOK-EDITORIAL.git",
     "ref": "main",
-    "revision": "8e9f8dfe94cf70131e7d6866680929c808ca9347",
+    "revision": "00dca3c10f5e23d614aae60920a8f00072678d1f",
     "directory": "智慧之海"
   }
 }

@@ -39,7 +39,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
           {items.map((unit) => {
             const title = splitBilingualLabel(unit.title);
             const chapter = title.en.match(/^Chapter\s+(\d+)\s*[·:—–-]\s*(.+)$/iu);
-            const number = chapter?.[1] ?? (unit.slug === "preface" ? "00" : "—");
+            const number = chapter?.[1] ?? (unit.slug === "opening" ? "00" : unit.slug === "preface" ? "01" : "—");
             const titleEn = chapter?.[2] ?? title.en;
             return <li><a href={`${base}/books/${book.slug}/read/${unit.slug}/`} data-unit={unit.slug}>
               <span class="contents-number">{number}</span>
