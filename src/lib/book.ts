@@ -124,10 +124,10 @@ function promoteOpeningSectionHeadings(markdown: string) {
 function splitLanguages(markdown: string) {
   const sections: Record<"intro" | "en" | "zh", string[]> = { intro: [], en: [], zh: [] };
   let current: keyof typeof sections = "intro";
-  const hasExplicitLanguageMarkers = /^#{2,3}\s+(?:\*\*)?(?:EN|ZH|English Version|Chinese Version|English Source(?:｜American English)?|Traditional Chinese(?:｜繁體中文等值稿)?)(?:\*\*)?\s*$/imu.test(markdown);
+  const hasExplicitLanguageMarkers = /^#{2,3}\s+(?:\*\*)?(?:EN|ZH|English Version|Chinese Version|English Source(?:｜American English)?|Traditional Chinese(?:｜繁體中文(?:等值稿)?)?)(?:\*\*)?\s*$/imu.test(markdown);
 
   for (const line of markdown.split("\n")) {
-    const marker = line.match(/^#{2,3}\s+(?:\*\*)?(EN|ZH|English Version|Chinese Version|English Source(?:｜American English)?|Traditional Chinese(?:｜繁體中文等值稿)?)(?:\*\*)?\s*$/i)?.[1]?.toLowerCase();
+    const marker = line.match(/^#{2,3}\s+(?:\*\*)?(EN|ZH|English Version|Chinese Version|English Source(?:｜American English)?|Traditional Chinese(?:｜繁體中文(?:等值稿)?)?)(?:\*\*)?\s*$/i)?.[1]?.toLowerCase();
     if (marker === "en" || marker === "english version" || marker?.startsWith("english source")) {
       current = "en";
       continue;
@@ -136,7 +136,7 @@ function splitLanguages(markdown: string) {
       current = "zh";
       continue;
     }
-    if (!hasExplicitLanguageMarkers && current === "en" && /^#\s+[^\n]*[\u3400-\u9fff][^\n]*$/u.test(line)) {
+    if (current === "en" && /^#\s+[^\n]*[\u3400-\u9fff][^\n]*$/u.test(line)) {
       current = "zh";
       continue;
     }
