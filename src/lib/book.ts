@@ -205,7 +205,7 @@ function partLabel(sourceRoot: string, path: string) {
 export function getBookUnits(bookSlug: string): ReadingUnit[] {
   const sourceRoot = join(contentRoot, bookSlug);
   const candidates = filesBelow(sourceRoot)
-    .filter((path) => !/[\\/]完整版\.md$/.test(path) && !/[\\/]README\.md$/.test(path) && !/[\\/]00_Contents_目錄\.md$/.test(path))
+    .filter((path) => !/[\\/]完整版\.md$/.test(path) && !/[\\/]README\.md$/.test(path) && !/[\\/](?:00_)?Contents_目錄\.md$/.test(path))
     .flatMap((sourcePath) => {
       const markdown = readFileSync(sourcePath, "utf8");
       const fallback = basename(sourcePath, ".md").replace(/^\d+_/, "").replace(/_/g, " ");

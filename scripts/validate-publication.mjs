@@ -19,6 +19,10 @@ const forbidden = [
 const failures = [];
 const htmlFiles = filesBelow(outputRoot);
 
+if (htmlFiles.some((path) => relative(outputRoot, path).split("/").includes("chapter-NaN"))) {
+  failures.push("Invalid chapter-NaN route was generated");
+}
+
 for (const path of htmlFiles) {
   const html = readFileSync(path, "utf8");
   for (const rule of forbidden) {
