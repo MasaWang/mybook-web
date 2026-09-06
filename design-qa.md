@@ -1,51 +1,50 @@
-# Design QA — Raw Typescript publishing edition
+# Design QA — Opening reading page
 
-## Evidence
-
-- Source visual truth: `/Users/kriswong/Desktop/截圖 2026-09-04 22.40.26.png` through `/Users/kriswong/Desktop/截圖 2026-09-04 22.45.39.png` (OceanAI baseline plus Raw Typescript reference sequence).
-- Rendered implementation: `qa-captures/home-desktop.png`, `qa-captures/contents-desktop.png`, `qa-captures/reader-desktop-final.png`, `qa-captures/home-mobile-final.png`, `qa-captures/contents-mobile-final.png`, and `qa-captures/reader-mobile-final2.png`.
-- Desktop viewport: 1775 × 1492 CSS px, device scale factor 1; source screenshots were inspected at their native pixels and compared by visible content region rather than browser chrome.
-- Mobile viewport: 390 × 844 CSS px, device scale factor 1.
-- State: `/books/wisdom-sea/`, `/contents/`, and Chapter 8; dark and light themes; English and English + Traditional Chinese reading modes.
+- Source visual truth: `/Users/kriswong/Desktop/截圖 2026-09-05 21.16.32.png`
+- Implementation screenshot: `/tmp/mybook-opening-replica.png`
+- Route: `/mybook-web/books/wisdom-sea/read/opening/?lang=en`
+- State: desktop, American English, light theme
+- Source pixels: 4096 × 2560 at 2× density; browser content compared at approximately 2048 CSS px wide
+- Implementation pixels: 2048 × 1161 at 1× density; 2048 CSS px viewport width
 
 ## Full-view comparison
 
-The final desktop captures reproduce the reference's wide editorial shell, large mono display hierarchy, dashed rules, restrained palette, and deliberate vertical spacing without adding a cover or modern card styling. The book page now uses a true asymmetric title/question composition; Contents uses dense ruled rows and integrated Part headers; the chapter page uses a large but bounded title followed by a narrow reading measure.
+The source and implementation now share the same broad publishing frame, left reading axis, concentrated chapter metadata, dominant Chinese chapter title, dashed divider, and early正文 entry. The light paper color was sampled from the source as RGB 248/248/246 and implemented as `#f8f8f6`.
 
 ## Focused-region comparison
 
-Focused checks covered the book title and metadata register, Contents title/Part I rows, Chapter 8 title and opening paragraphs, header controls, and mobile title wrapping. Image fidelity was not applicable: neither target nor implementation uses visible illustrative assets in these regions. Copy remained sourced from the book manifest and manuscript.
+The chapter header and first正文 region were compared because typography and vertical rhythm were the material fidelity surfaces. No raster imagery or custom visual assets are present in either region.
+
+## Findings and iteration history
+
+- Earlier P1: the Chinese chapter title rendered as a secondary bilingual subtitle and was materially smaller than the source.
+  - Fix: use the full title scale and heavy monospace publishing face in Traditional-Chinese-only mode.
+  - Post-fix evidence: `/tmp/mybook-opening-light-after.png`; the title now occupies the intended dominant chapter-heading tier.
+- Earlier P1: the metadata was split across distant left and right columns, producing a dashboard-like header.
+  - Fix: consolidate the metadata into one wrapping horizontal register above the title.
+  - Post-fix evidence: the front-matter label, unit/read time, status, and update date now read as one compact band.
+- Earlier P2:正文 began substantially lower than in the source.
+  - Fix: reduce register, header-bottom, and prose-top spacing while preserving the existing outer shell width.
+  - Post-fix evidence: the first正文 heading now enters at approximately the source rhythm.
+- Earlier P2: the implementation used `#f4f3ee`, visibly warmer and darker than the source.
+  - Fix: sample and apply the source background `#f8f8f6`.
+- Earlier P1: the enlarged chapter title used a heavy slab-like weight while the source used a light Courier typescript heading.
+  - Fix: retain the enlarged title scale but reduce reading-page chapter titles to weight 400.
+- Earlier P1: `Why an ocean?` and its Traditional Chinese equivalent were emitted as ordinary paragraphs, hiding the manuscript hierarchy.
+  - Fix: the Opening parser now promotes the first standalone line after a thematic break to an `h2`; both language versions were verified in generated HTML.
+- Earlier P2: the breadcrumb, chapter-header lower clearance, paragraph separation, and next-unit navigation were visually weaker than the marked reference.
+  - Fix: lower and enlarge the breadcrumb slightly, restore chapter-header lower breathing room, increase paragraph spacing, and enlarge chapter navigation labels.
 
 ## Required fidelity surfaces
 
-- Fonts and typography: English display and publishing controls use the Courier-derived mono stack; Traditional Chinese display/body text uses the Songti/Noto Serif/PMingLiU stack; reader sizes, leading, weight, wrapping, and hierarchy were checked at desktop and mobile widths.
-- Spacing and layout rhythm: hero columns, metadata-to-title space, Contents first screen, Part group spacing, reader header, 48rem prose measure, and responsive stacking match the intended expansive print rhythm.
-- Colors and tokens: warm paper/light ink and near-black/warm-white dark palettes use common tokens; dashed rules and muted teal remain legible in both themes.
-- Image quality and asset fidelity: no source imagery, logos, or decorative graphics are required or approximated.
-- Copy and content: book title, core question, subtitle, chapter text, bilingual labels, and navigation are preserved from the manifest/manuscript.
+- Fonts and typography: passed; the English chapter title now uses the source-like light Courier treatment, while正文 retains the established language-specific reading faces.
+- Spacing and layout rhythm: passed; outer width is unchanged and chapter-header/body timing is aligned with the source.
+- Colors and visual tokens: passed; light paper color matches the sampled source and dark-theme tokens remain unchanged.
+- Image quality and asset fidelity: passed; no visible image assets occur in the compared content region.
+- Copy and content: passed; manuscript text was intentionally unchanged.
+- Primary interactions: language selection, theme control, and chapter navigation remain present; publication build validates all bilingual pages.
+- Console/runtime: no application build diagnostics; Astro reports 0 errors, 0 warnings, and 0 hints.
 
-## Comparison history
-
-1. P1 — Chapter route returned 404 in independent browser capture after `astro.config.mjs` disappeared during QA. Fix: restored the static base-path configuration and restarted the preview. Post-fix evidence: `reader-desktop-final.png` and `reader-mobile-final2.png` render Chapter 8 successfully.
-2. P1 — Reader title overflowed the 390px viewport. Fix: bounded the mobile title to the content width, reduced the responsive display scale, and enabled safe wrapping. Post-fix evidence: `reader-mobile-final2.png` contains the full title without horizontal clipping.
-3. P1 — Book and Contents display titles plus metadata overflowed on mobile. Fix: reduced the mobile title scales and allowed metadata values and long display words to wrap. Post-fix evidence: `home-mobile-final.png` and `contents-mobile-final.png` preserve the intended hierarchy inside the viewport.
-4. P2 — Earlier reader spacing separated language blocks too broadly and made paragraph cadence sparse. Fix: removed generic adjacent-language spacing, limited the major divider to English/Chinese manuscript sections, and tightened paragraph margins. Post-fix evidence: `reader-desktop-final.png`.
-5. P2 — Contents current-row fill and split Part labels read as modern UI rather than a typescript index. Fix: removed the fill, combined `Part / 篇名` in the group header, and retained the fine left indicator. Post-fix evidence: `contents-desktop.png`.
-
-## Interaction and browser checks
-
-- Language picker switched from English to English + Traditional Chinese and exposed both manuscript sections.
-- Theme toggle changed state successfully and updated its accessible label from “Switch to dark mode” to “Switch to light mode”.
-- Thought-code anchors expose deterministic fragment URLs and accessible names.
-- Previous/next chapter navigation remains present.
-- No page-script console errors were observed during headless Chromium captures; only host-level Chrome display-link shutdown warnings were emitted.
-
-## Findings
-
-No actionable P0, P1, or P2 differences remain. The implementation intentionally adapts the reference language rather than cloning its content, and preserves OceanAI's bilingual publishing and continuous-publication controls.
-
-## Follow-up polish
-
-- P3: Consider self-hosting a licensed Chinese serif font later to eliminate platform-dependent Songti fallback differences.
+Final comparison evidence: `/tmp/mybook-opening-replica.png` shows the light Courier title, consolidated metadata, lowered breadcrumb, stronger正文 rhythm, and source-like chapter-header composition. Generated HTML contains `<h2>Why an ocean?</h2>` and `<h2>為什麼是海洋？</h2>`.
 
 final result: passed

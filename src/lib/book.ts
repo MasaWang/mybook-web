@@ -114,9 +114,17 @@ function prepareMarkdown(markdown: string) {
     .trim();
 }
 
+function promoteOpeningSectionHeadings(markdown: string) {
+  return markdown.replace(
+    /(^---\s*$\n+)(?!\s*#)([^\n]+)(?=\n{2,})/gmu,
+    (_match, rule: string, heading: string) => `${rule}## ${heading.trim()}`,
+  );
+}
+
 function splitLanguages(markdown: string) {
   const sections: Record<"intro" | "en" | "zh", string[]> = { intro: [], en: [], zh: [] };
   let current: keyof typeof sections = "intro";
+  const hasExplicitLanguageMarkers = /^#{2,3}\s+(?:\*\*)?(?:EN|ZH|English Version|Chinese Version|English Source(?:｜American English)?|Traditional Chinese(?:｜繁體中文等值稿)?)(?:\*\*)?\s*$/imu.test(markdown);
 
   for (const line of markdown.split("\n")) {
     const marker = line.match(/^#{2,3}\s+(?:\*\*)?(EN|ZH|English Version|Chinese Version|English Source(?:｜American English)?|Traditional Chinese(?:｜繁體中文等值稿)?)(?:\*\*)?\s*$/i)?.[1]?.toLowerCase();
@@ -128,10 +136,15 @@ function splitLanguages(markdown: string) {
       current = "zh";
       continue;
     }
+    if (!hasExplicitLanguageMarkers && current === "en" && /^#\s+[^\n]*[\u3400-\u9fff][^\n]*$/u.test(line)) {
+      current = "zh";
+      continue;
+    }
     const bilingualHeading = current === "intro" ? line.match(/^(#{1,6}\s+)([^｜]+)｜(.+)$/u) : null;
     if (bilingualHeading) {
       sections.en.push(`${bilingualHeading[1]}${bilingualHeading[2].trim()}`);
-      sections.zh.push(`${bilingualHeading[1]}${bilingualHeading[3].trim()}`);
+      if (hasExplicitLanguageMarkers) sections.zh.push(`${bilingualHeading[1]}${bilingualHeading[3].trim()}`);
+      else current = "en";
       continue;
     }
     sections[current].push(line);
@@ -170,7 +183,8 @@ function splitCombinedPart(markdown: string) {
 }
 
 function makeUnit(markdown: string, fallback: string, slug: string, part: string, label: string): ReadingUnit {
-  const displayMarkdown = prepareMarkdown(markdown);
+  const preparedMarkdown = prepareMarkdown(markdown);
+  const displayMarkdown = slug === "opening" ? promoteOpeningSectionHeadings(preparedMarkdown) : preparedMarkdown;
   const languages = splitLanguages(displayMarkdown);
   const words = displayMarkdown.replace(/[#>*_`\[\]()|-]/g, "").length;
   return {

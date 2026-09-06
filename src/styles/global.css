@@ -1,7 +1,7 @@
 :root {
   --ink: #18201d;
   --muted: #56605b;
-  --paper: #f4f3ee;
+  --paper: #f8f8f6;
   --sea: #164b45;
   --sea-solid: #164b45;
   --on-sea: white;
@@ -134,7 +134,7 @@ html[data-reading-mode="bilingual"] .book-statement-copy [data-language="zh"] { 
 .book-related-links a { font-size: .75rem; font-weight: 700; }
 .book-related-arrow { position: absolute; right: .25rem; bottom: 2rem; font-size: 1.5rem; }
 main:has(> .book-related-links) + .site-footer { margin-top: 0; }
-.breadcrumbs { display: flex; flex-wrap: wrap; gap: .5rem; padding-top: 2rem; color: var(--muted); font-size: .75rem; }
+.breadcrumbs { display: flex; flex-wrap: wrap; gap: .5rem; padding-top: 4rem; color: var(--muted); font-family: var(--mono); font-size: .8rem; letter-spacing: .015em; }
 .contents > header { padding-block: clamp(2rem, 7vw, 6rem); }
 .contents > header .eyebrow { margin: 0 0 clamp(2.5rem, 6vw, 5rem); }
 .contents h1 { margin: 0; font-size: clamp(2.5rem, 7vw, 6rem); font-weight: 700; line-height: .92; text-transform: uppercase; }
@@ -155,10 +155,9 @@ main:has(> .book-related-links) + .site-footer { margin-top: 0; }
 .reader { max-width: var(--shell); }
 .reader > .breadcrumbs { padding-bottom: 0; border-bottom: 0; text-transform: uppercase; }
 .reader-header { padding-block: clamp(3.5rem, 8vw, 7rem); border-bottom: var(--rule); }
-.reader-register { display: grid; grid-template-columns: 1fr auto; gap: .35rem 2rem; align-items: baseline; margin-bottom: clamp(3rem, 7vw, 5.5rem); font-size: .7rem; }
+.reader-register { display: flex; flex-wrap: wrap; gap: .35rem 1.25rem; align-items: baseline; margin-bottom: 1.35rem; font-size: .7rem; }
 .reader-register p { margin: 0; }
-.reader-register .eyebrow { grid-row: span 2; }
-.reader-register .publication-note { text-align: right; }
+.reader-register .publication-note { text-align: left; }
 .reader h1 { max-width: 22ch; margin: 0; font-family: var(--mono); font-size: clamp(2.7rem, 6vw, 5.75rem); font-weight: 700; letter-spacing: -.035em; line-height: .92; }
 .reader h1.bilingual-title {
   display: grid;
@@ -248,8 +247,7 @@ html[data-reading-mode="bilingual"] :is(.site-header nav > a, .eyebrow, .library
   .breadcrumb-title-full { display: none; }
   .breadcrumb-title-compact { display: inline; }
   .reader-header { padding-block: 2.75rem; }
-  .reader-register { grid-template-columns: 1fr; margin-bottom: 2.5rem; }
-  .reader-register .eyebrow { grid-row: auto; }
+  .reader-register { align-items: flex-start; flex-direction: column; margin-bottom: 1.5rem; }
   .reader-register .publication-note { text-align: left; }
   .reader h1.bilingual-title { max-width: none; font-size: clamp(2.25rem, 10.5vw, 2.75rem); letter-spacing: -.035em; }
   .reader h1.bilingual-title > span { text-wrap: balance; }
@@ -301,18 +299,20 @@ html[data-reading-mode="bilingual"] :is(.site-header nav > a, .eyebrow, .library
 .contents-group li > a:hover :is(.contents-number, strong) { color: inherit; }
 .contents-group li > a[aria-current="page"] { background: transparent; }
 
-.reader-header { padding-block: clamp(4.5rem, 8vw, 7.5rem) clamp(3.5rem, 6vw, 5.5rem); }
-.reader-register { margin-bottom: clamp(3.5rem, 6vw, 5rem); }
-.reader h1, .reader h1.bilingual-title { max-width: 22ch; font-size: clamp(3.25rem, 5vw, 5.35rem); line-height: .94; }
+.reader-header { padding-block: clamp(4rem, 7vw, 6.5rem) clamp(4.75rem, 6.5vw, 6.25rem); }
+.reader-register { margin-bottom: clamp(1.1rem, 2vw, 1.5rem); }
+.reader h1, .reader h1.bilingual-title { max-width: 22ch; font-size: clamp(4rem, 6.5vw, 7rem); font-weight: 400; line-height: .94; }
 .reader h1.bilingual-title { gap: .32em; }
-.reader h1.bilingual-title .title-en { font-family: var(--mono); }
-.reader h1.bilingual-title .title-zh { color: var(--ink); font-family: var(--serif-zh); font-size: .62em; font-weight: 700; letter-spacing: -.06em; }
+.reader h1.bilingual-title .title-en { font-family: var(--mono); font-weight: 400; }
+.reader h1.bilingual-title .title-zh { color: var(--ink); font-family: var(--serif-zh); font-size: .62em; font-weight: 400; letter-spacing: -.06em; }
+.reader h1.bilingual-title .title-zh:only-child,
+html[data-reading-mode="zh"] .reader h1.bilingual-title .title-zh { font-family: var(--mono); font-size: 1em; font-weight: 400; letter-spacing: -.08em; line-height: .94; }
 .reading-progress { height: 1px; }
 .reading-layout { width: 100%; }
-.prose { width: min(100%, 48rem); max-width: none; padding-block: clamp(4rem, 7vw, 6.5rem); font-size: clamp(1.03rem, 1.3vw, 1.16rem); line-height: 1.82; }
+.prose { width: min(100%, 48rem); max-width: none; padding-block: clamp(2.5rem, 4vw, 4rem); font-size: clamp(1.03rem, 1.3vw, 1.16rem); line-height: 1.82; }
 .prose > [lang="en"], .prose-intro { font-family: var(--mono); }
 .prose > [lang="zh-Hant"] { font-family: var(--serif-zh); font-size: 1.08em; letter-spacing: .018em; line-height: 1.95; }
-.prose p { margin-block: 0 1em; white-space: normal; }
+.prose p { margin-block: 0 1.45em; white-space: normal; }
 .prose h1, .prose h2, .prose h3 { font-family: inherit; }
 .prose [data-language] + [data-language] { margin-top: 0; padding-top: 0; border-top: 0; }
 html[data-reading-mode="bilingual"] .prose section[lang="en"] + section[lang="zh"] { margin-top: 5rem; padding-top: 5rem; border-top: 1px solid var(--line); }
@@ -320,7 +320,8 @@ html[data-reading-mode="bilingual"] .prose section[lang="en"] + section[lang="zh
 .thought-anchor { position: absolute; left: calc(100% + 1.25rem); top: .22em; color: var(--muted); font-family: var(--mono); font-size: .62rem; font-weight: 400; letter-spacing: 0; opacity: 0; text-decoration: none; white-space: nowrap; transition: opacity .12s ease; }
 .thought-block:hover > .thought-anchor, .thought-anchor:focus-visible, .thought-block:target > .thought-anchor { opacity: 1; }
 .thought-block:target { background: color-mix(in srgb, var(--sea-soft) 58%, transparent); outline: .35rem solid color-mix(in srgb, var(--sea-soft) 58%, transparent); }
-.chapter-nav { width: 100%; padding-block: 1.5rem; }
+.chapter-nav { width: 100%; padding-block: 2rem; font-size: .9rem; }
+.chapter-nav strong { margin-top: .3rem; font-size: 1.05rem; }
 .chapter-nav a:hover strong { text-decoration: underline; }
 
 html[data-theme="dark"] { --paper: #0c0d0d; --ink: #e7e5de; --muted: #aaa9a3; --surface: #121413; --sea-soft: #1d2926; }
