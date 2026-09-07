@@ -1,6 +1,7 @@
 ---
 import "../styles/global.css";
 import { getBookManifests } from "../lib/book";
+import { Check, Globe2, Moon, Sun } from "lucide-astro";
 interface Props {
   title: string;
   description: string;
@@ -59,20 +60,21 @@ const jsonLd = structuredData ? JSON.stringify(structuredData).replace(/</g, "\\
     <header class="site-header shell">
       <a class="brand" href={`${base}/`}>OceanAI Books</a>
       <nav aria-label="主要導覽">
-        {books.map((book) => <a href={`${base}/books/${book.slug}/`} aria-current={Astro.url.pathname.includes(`/books/${book.slug}/`) ? "page" : undefined}><span data-language="en">{book.titleEn}</span><span data-language="zh">{book.title}</span></a>)}
-        <label class="language-picker">
-          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
-            <circle cx="12" cy="12" r="9"></circle>
-            <path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"></path>
-          </svg>
-          <span class="visually-hidden">Language / 閱讀語言</span>
-          <select class="language-select" aria-label="Language / 閱讀語言">
-            <option value="en">English</option>
-            <option value="zh">繁體中文</option>
-            <option value="bilingual">English + 繁中</option>
-          </select>
-        </label>
-        <button class="theme-toggle" type="button" aria-label="切換至深色模式">深色</button>
+        {books.map((book) => <a href={`${base}/books/${book.slug}/`} aria-current={Astro.url.pathname.includes(`/books/${book.slug}/`) ? "page" : undefined}><span data-language="en">{book.titleEn}</span><span class="bilingual-separator" aria-hidden="true"> / </span><span data-language="zh">{book.title}</span></a>)}
+        <div class="language-menu">
+          <button class="language-trigger" type="button" aria-label="Language / 閱讀語言" aria-haspopup="listbox" aria-expanded="false">
+            <Globe2 size={20} strokeWidth={1.5} aria-hidden="true" />
+          </button>
+          <div class="language-menu-panel" role="listbox" aria-label="Language / 閱讀語言" hidden>
+            <button type="button" role="option" data-language-mode="en" aria-selected="false"><span class="language-option-label"><span lang="en">English</span></span><Check size={16} strokeWidth={1.75} aria-hidden="true" /></button>
+            <button type="button" role="option" data-language-mode="zh" aria-selected="false"><span class="language-option-label"><span lang="zh-Hant">繁體中文</span></span><Check size={16} strokeWidth={1.75} aria-hidden="true" /></button>
+            <button type="button" role="option" data-language-mode="bilingual" aria-selected="false"><span class="language-option-label"><span lang="en">English</span><span class="language-option-separator" aria-hidden="true">+</span><span lang="zh-Hant">繁中</span></span><Check size={16} strokeWidth={1.75} aria-hidden="true" /></button>
+          </div>
+        </div>
+        <button class="theme-toggle" type="button" aria-label="切換至深色模式">
+          <Moon class="theme-icon theme-icon-moon" size={20} strokeWidth={1.5} aria-hidden="true" />
+          <Sun class="theme-icon theme-icon-sun" size={20} strokeWidth={1.5} aria-hidden="true" />
+        </button>
       </nav>
     </header>
     <main id="main-content" tabindex="-1"><slot /></main>
@@ -109,8 +111,6 @@ const jsonLd = structuredData ? JSON.stringify(structuredData).replace(/</g, "\\
       const updateThemeToggle = () => {
         if (!themeToggle) return;
         const dark = document.documentElement.dataset.theme === "dark";
-        const mode = document.documentElement.dataset.readingMode ?? "bilingual";
-        themeToggle.textContent = mode === "en" ? (dark ? "LIGHT" : "DARK") : mode === "zh" ? (dark ? "淺色" : "深色") : (dark ? "LIGHT / 淺色" : "DARK / 深色");
         themeToggle.setAttribute("aria-label", dark ? "Switch to light mode / 切換至淺色模式" : "Switch to dark mode / 切換至深色模式");
         themeToggle.setAttribute("aria-pressed", String(dark));
       };
@@ -121,18 +121,45 @@ const jsonLd = structuredData ? JSON.stringify(structuredData).replace(/</g, "\\
         try { localStorage.setItem("oceanai-theme", nextTheme); } catch {}
         updateThemeToggle();
       });
-      const languageSelect = document.querySelector<HTMLSelectElement>(".language-select");
+      const languageMenu = document.querySelector<HTMLElement>(".language-menu");
+      const languageTrigger = document.querySelector<HTMLButtonElement>(".language-trigger");
+      const languagePanel = document.querySelector<HTMLElement>(".language-menu-panel");
+      const languageOptions = [...document.querySelectorAll<HTMLButtonElement>("[data-language-mode]")];
+      const closeLanguageMenu = () => {
+        if (!languageTrigger || !languagePanel) return;
+        languageTrigger.setAttribute("aria-expanded", "false");
+        languagePanel.hidden = true;
+      };
       const setLanguageMode = (mode: string) => {
         if (!new Set(["en", "zh", "bilingual"]).has(mode)) return;
         document.documentElement.dataset.readingMode = mode;
         document.documentElement.lang = mode === "en" ? "en" : "zh-Hant";
-        if (languageSelect) languageSelect.value = mode;
+        languageOptions.forEach((option) => option.setAttribute("aria-selected", String(option.dataset.languageMode === mode)));
         try { localStorage.setItem("oceanai-language", mode); } catch {}
         updateThemeToggle();
         dispatchEvent(new CustomEvent("oceanai:languagechange", { detail: { mode } }));
       };
       setLanguageMode(document.documentElement.dataset.readingMode ?? "bilingual");
-      languageSelect?.addEventListener("change", () => setLanguageMode(languageSelect.value));
+      languageTrigger?.addEventListener("click", () => {
+        if (!languagePanel) return;
+        const open = languageTrigger.getAttribute("aria-expanded") === "true";
+        languageTrigger.setAttribute("aria-expanded", String(!open));
+        languagePanel.hidden = open;
+        if (!open) languageOptions.find((option) => option.getAttribute("aria-selected") === "true")?.focus();
+      });
+      languageOptions.forEach((option) => option.addEventListener("click", () => {
+        setLanguageMode(option.dataset.languageMode ?? "bilingual");
+        closeLanguageMenu();
+        languageTrigger?.focus();
+      }));
+      document.addEventListener("click", (event) => {
+        if (languageMenu && !languageMenu.contains(event.target as Node)) closeLanguageMenu();
+      });
+      document.addEventListener("keydown", (event) => {
+        if (event.key !== "Escape" || languagePanel?.hidden) return;
+        closeLanguageMenu();
+        languageTrigger?.focus();
+      });
       document.querySelectorAll<HTMLAnchorElement>("[data-continue-book]").forEach((link) => {
         const book = link.dataset.continueBook;
         const saved = book ? localStorage.getItem(`oceanai-reading:${book}`) : null;

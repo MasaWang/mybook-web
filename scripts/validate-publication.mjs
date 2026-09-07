@@ -49,7 +49,7 @@ const bilingualPages = htmlFiles.filter((path) => {
 for (const path of bilingualPages) {
   const html = readFileSync(path, "utf8");
   for (const mode of ["en", "zh", "bilingual"]) {
-    if (!html.includes(`<option value="${mode}"`)) failures.push(`${relative(outputRoot, path)}: missing ${mode} language option`);
+    if (!html.includes(`data-language-mode="${mode}"`)) failures.push(`${relative(outputRoot, path)}: missing ${mode} language option`);
   }
 }
 
