@@ -1,50 +1,68 @@
-# Design QA — Opening reading page
+# Design QA — Reader Header
 
-- Source visual truth: `/Users/kriswong/Desktop/截圖 2026-09-05 21.16.32.png`
-- Implementation screenshot: `/tmp/mybook-opening-replica.png`
-- Route: `/mybook-web/books/wisdom-sea/read/opening/?lang=en`
-- State: desktop, American English, light theme
-- Source pixels: 4096 × 2560 at 2× density; browser content compared at approximately 2048 CSS px wide
-- Implementation pixels: 2048 × 1161 at 1× density; 2048 CSS px viewport width
+- Verification date: 2026-09-07
+- Accepted implementation baseline: `e894385` (`Refine Wisdom Sea reader interface`)
+- Reference: user-supplied annotated screenshots captured on 2026-09-06
+- Route: `/mybook-web/books/wisdom-sea/read/chapter-1/?lang=bilingual`
+- Viewport: 1502 × 1455 CSS px
+- State: Chapter 1, light theme, English + Traditional Chinese
+- Additional interaction states checked: language menu and light/dark theme toggle
 
-## Full-view comparison
+## Accepted full-view result
 
-The source and implementation now share the same broad publishing frame, left reading axis, concentrated chapter metadata, dominant Chinese chapter title, dashed divider, and early正文 entry. The light paper color was sampled from the source as RGB 248/248/246 and implemented as `#f8f8f6`.
+The reader layout, body typography, and content remain unchanged. The header occupies 140 CSS px vertically and reserves one explicit 44 CSS px content axis with 10 CSS px clearance above the existing rule. Brand, current-book title, language icon, and theme icon are visually centered on that axis with explicit line heights. The left brand is 24 CSS px, while the direct current-book link remains 18 CSS px. Language and theme controls are borderless Lucide icons; the language control opens a custom publication-style menu with a clear selected state. Header titles, menu text, breadcrumbs, and the reading register use Courier New for English and numerals with the established system fallback for Traditional Chinese. Breadcrumbs and metadata now share 14 CSS px, weight 400, muted color, and the same letter spacing; breadcrumb underlines are removed. Bilingual separators are explicit HTML rather than generated text.
 
-## Focused-region comparison
+## Accepted header result
 
-The chapter header and first正文 region were compared because typography and vertical rhythm were the material fidelity surfaces. No raster imagery or custom visual assets are present in either region.
+The current-book link remains without an underline. Its active-state color remains unchanged, so location awareness is preserved without the visual line. The header is 140 CSS px and its two requested textual anchors are 18 CSS px; language and theme controls retain their prior size.
 
-## Findings and iteration history
+## Findings
 
-- Earlier P1: the Chinese chapter title rendered as a secondary bilingual subtitle and was materially smaller than the source.
-  - Fix: use the full title scale and heavy monospace publishing face in Traditional-Chinese-only mode.
-  - Post-fix evidence: `/tmp/mybook-opening-light-after.png`; the title now occupies the intended dominant chapter-heading tier.
-- Earlier P1: the metadata was split across distant left and right columns, producing a dashboard-like header.
-  - Fix: consolidate the metadata into one wrapping horizontal register above the title.
-  - Post-fix evidence: the front-matter label, unit/read time, status, and update date now read as one compact band.
-- Earlier P2:正文 began substantially lower than in the source.
-  - Fix: reduce register, header-bottom, and prose-top spacing while preserving the existing outer shell width.
-  - Post-fix evidence: the first正文 heading now enters at approximately the source rhythm.
-- Earlier P2: the implementation used `#f4f3ee`, visibly warmer and darker than the source.
-  - Fix: sample and apply the source background `#f8f8f6`.
-- Earlier P1: the enlarged chapter title used a heavy slab-like weight while the source used a light Courier typescript heading.
-  - Fix: retain the enlarged title scale but reduce reading-page chapter titles to weight 400.
-- Earlier P1: `Why an ocean?` and its Traditional Chinese equivalent were emitted as ordinary paragraphs, hiding the manuscript hierarchy.
-  - Fix: the Opening parser now promotes the first standalone line after a thematic break to an `h2`; both language versions were verified in generated HTML.
-- Earlier P2: the breadcrumb, chapter-header lower clearance, paragraph separation, and next-unit navigation were visually weaker than the marked reference.
-  - Fix: lower and enlarge the breadcrumb slightly, restore chapter-header lower breathing room, increase paragraph spacing, and enlarge chapter navigation labels.
+- No actionable P0, P1, or P2 differences remain for the two requested annotations.
+- Typography: left brand is 24 CSS px, current-book link is 18 CSS px, and the complete reading register is 14 CSS px; controls and body typography are unchanged.
+- Spacing and layout rhythm: header height is 140 CSS px; contents align near the bottom rule with 10 CSS px clearance; the reading-page footer gap remains reduced by 50 CSS px.
+- Colors and visual tokens: metadata and breadcrumbs use the muted gray token; icon hover and focus retain the sea accent.
+- Image quality and asset fidelity: header controls use established Lucide globe, moon, and sun icons without custom-drawn assets.
+- Copy and content: unchanged.
 
-## Required fidelity surfaces
+## Comparison history
 
-- Fonts and typography: passed; the English chapter title now uses the source-like light Courier treatment, while正文 retains the established language-specific reading faces.
-- Spacing and layout rhythm: passed; outer width is unchanged and chapter-header/body timing is aligned with the source.
-- Colors and visual tokens: passed; light paper color matches the sampled source and dark-theme tokens remain unchanged.
-- Image quality and asset fidelity: passed; no visible image assets occur in the compared content region.
-- Copy and content: passed; manuscript text was intentionally unchanged.
-- Primary interactions: language selection, theme control, and chapter navigation remain present; publication build validates all bilingual pages.
-- Console/runtime: no application build diagnostics; Astro reports 0 errors, 0 warnings, and 0 hints.
+1. Before: active book link was underlined and header height was 76 CSS px.
+2. First fix: removed the active-link underline and increased the desktop header minimum height to 100 CSS px.
+3. User revision: requested a 150 CSS px header and a 50 CSS px reduction in the blank space before the footer.
+4. Latest revision: reduce the header to 140 CSS px and set the left brand and direct current-book link to 18 CSS px.
+5. After: underline remains `none`; header height is 140 CSS px; both requested text elements are 18 CSS px.
+6. Alignment revision: move the complete header content row toward the bottom rule while retaining the 140 CSS px header.
+7. Information-hierarchy revision: enlarge the brand, normalize the metadata size and color, unify breadcrumb color, and align header text with the 44 CSS px controls.
+8. Control revision: remove square borders, retain only the globe icon for language, and switch between moon and sun icons for theme state.
+9. Metadata trial: muted gray and weight 400 across the complete register.
+10. Menu revision: replace the unfinished native select popup with a custom keyboard-accessible menu and reduce header-rule clearance to 10 CSS px.
+11. Reverted: the Sarasa Mono TC trial was removed after full-page comparison showed it did not match the accepted footer and chapter-navigation typography.
+12. Retained: explicit bilingual separators and Courier New plus system Traditional-Chinese fallback.
+13. Alignment revision: replace outer-edge alignment with an explicit 44 CSS px header content axis.
+14. Typography revision: match breadcrumb and metadata size, weight, spacing, and color; enlarge chapter-navigation prompts to 16.8 CSS px.
 
-Final comparison evidence: `/tmp/mybook-opening-replica.png` shows the light Courier title, consolidated metadata, lowered breadcrumb, stronger正文 rhythm, and source-like chapter-header composition. Generated HTML contains `<h2>Why an ocean?</h2>` and `<h2>為什麼是海洋？</h2>`.
+## Implementation checklist
 
-final result: passed
+- [x] Remove current-book underline.
+- [x] Increase header height.
+- [x] Reduce the reading-page footer gap by 50 CSS px.
+- [x] Set the desktop header height to 140 CSS px.
+- [x] Set the left brand and direct current-book link to 18 CSS px.
+- [x] Bottom-align all desktop header content with consistent clearance above the divider.
+- [x] Set the brand to 24 CSS px and align the header row to one 44 CSS px control box.
+- [x] Set all reading metadata to 14 CSS px and normalize publication colors.
+- [x] Unify breadcrumb color across links and the current item.
+- [x] Replace framed language and theme controls with borderless library icons.
+- [x] Match breadcrumb and metadata at 14 CSS px, weight 400, muted color, and one letter spacing.
+- [x] Set PREVIOUS and NEXT prompts to 16.8 CSS px.
+- [x] Replace the native language popup with a finished custom menu.
+- [x] Reduce the header content clearance above its bottom rule to 10 CSS px.
+- [x] Use Courier New for English and numerals with the established system fallback for Traditional Chinese.
+- [x] Make bilingual separators explicit in header, breadcrumb, and metadata markup.
+- [x] Preserve current alignment, controls, colors, and divider.
+- [x] Verify in the in-app browser.
+
+## Verification result
+
+Passed against baseline `e894385`. The accepted reader-header layout, bilingual typography hierarchy, metadata treatment, navigation sizing, language selection, and theme controls are the visual invariants for subsequent framework upgrades.
