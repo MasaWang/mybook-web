@@ -2,6 +2,9 @@
   "name": "oceanai-web-book",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "scripts": {
     "sync:manuscript": "node scripts/sync-manuscript.mjs",
     "dev": "npm run sync:manuscript && astro dev",
@@ -10,13 +13,13 @@
     "check": "astro check"
   },
   "dependencies": {
-    "@astrojs/sitemap": "^3.5.1",
-    "astro": "^5.13.5",
+    "@astrojs/sitemap": "^3.7.4",
+    "astro": "^7.3.1",
     "lucide-astro": "^0.468.0",
     "marked": "^16.2.1"
   },
   "devDependencies": {
-    "@astrojs/check": "^0.9.4",
+    "@astrojs/check": "^0.9.10",
     "typescript": "^5.9.2"
   }
 }
