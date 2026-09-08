@@ -35,6 +35,7 @@
 - 2026-09-05 — 對接 `MYBOOK-EDITORIAL` 拆分後的書首：目錄來源不再生成閱讀頁，`Opening｜開篇` 與 `Preface｜前言` 成為獨立雙語閱讀單元；全站開始閱讀入口改由 Opening 啟航，書籍首頁分別提供 Opening 與 Preface 導讀。
 - 2026-09-05 — 依原版 Opening 截圖校準閱讀頁首屏：淺色背景精確改為 `#f8f8f6`，章首 metadata 集中為單一閱讀帶，繁中單語章名恢復粗重全尺寸，縮短章題與正文之間的垂直距離；保留原有內容寬度、三態語言、思想碼、深色模式及章節導航。
 - 2026-09-05 — 依 Opening 原圖與七項畫面標註復刻閱讀頁：麵包屑下移並校準等寬字體，章名改為原版細字重，增加章首下緣留白與正文段落節奏；出版解析器將 Opening 分隔線後的獨立句提升為二級小節標題，並放大章末上一篇／下一篇導覽。
+- 2026-09-08 — 將 GitHub Pages 工作流程改為 Node 24 執行時的官方 Actions：`checkout@v7`、`setup-node@v7`、`configure-pages@v6`、`upload-pages-artifact@v5`、`deploy-pages@v5`；網站建置仍使用 `node-version: 22`。
 
 ## Checkpoint
 
