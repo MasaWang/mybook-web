@@ -80,3 +80,13 @@ Passed against baseline `e894385`. The accepted reader-header layout, bilingual 
 - Build result: Astro check passed with 0 errors, 0 warnings, and 0 hints; publication validation passed for 35 pages and 35 bilingual pages.
 
 final result: passed
+
+## Language menu verification — 2026-09-08
+
+- Labels: `English`, `Chinese (TW)`, and `English + Chinese (TW)`; the underlying `en`, `zh`, and `bilingual` modes are unchanged.
+- Layout: fixed 16.5rem panel, three equal-height 52 CSS px rows, separately aligned English, plus sign, and locale label.
+- Interaction: hover and keyboard focus use gray with white text; the selected row and expanded globe use black with white foreground and a thin gray inset border.
+- Surface: the floating shadow is removed; the panel remains right-aligned to the globe control.
+- Build result: Astro check passed with 0 errors, 0 warnings, and 0 hints; publication validation passed for 35 pages and 35 bilingual pages.
+
+final result: passed
