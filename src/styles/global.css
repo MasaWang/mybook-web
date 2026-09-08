@@ -141,6 +141,7 @@ html[data-reading-mode="bilingual"] .book-core-question [data-language="zh"] { m
 .book-action-cell { display: flex; min-width: 0; min-height: 9rem; flex-direction: column; padding: 1.5rem var(--gutter); border-right: var(--rule); }
 .book-action-cell:last-child { border-right: 0; }
 .book-action-cell .eyebrow { margin: 0 0 1.5rem; }
+.book-actions .eyebrow, .book-statement > .eyebrow { color: var(--ink); }
 .book-action-cell a { display: flex; width: 100%; margin: auto 0 0; }
 .book-statement { display: grid; grid-template-columns: minmax(10rem, .45fr) minmax(0, 1fr); gap: clamp(2rem, 8vw, 8rem); padding-block: clamp(3rem, 6vw, 5rem); border-bottom: var(--rule); }
 .book-statement > p { margin: 0; }
@@ -151,9 +152,14 @@ html[data-reading-mode="bilingual"] .book-core-question [data-language="zh"] { m
 html[data-reading-mode="bilingual"] .book-statement-copy [data-language="zh"] { margin-top: .3em; }
 .book-related-links { padding-block: 0; }
 .book-related-links article { position: relative; min-height: 12rem; padding-block: 2rem; border-bottom: var(--rule); }
-.book-related-links h2 { margin: 0; font-size: 1.08rem; line-height: 1.35; }
-.book-related-links h2 small { font-size: .64rem; font-weight: 700; }
+.book-related-links h2 { margin: 0; font-size: 1.08rem; font-weight: 800; line-height: 1.35; }
+.book-related-title-zh { font-family: var(--serif-zh); font-size: .94em; }
+.book-related-links h2 small { color: var(--muted); font-size: .64rem; font-weight: inherit; }
 .book-related-links p { max-width: 58ch; margin-block: 1rem; color: var(--muted); font-size: .82rem; }
+.book-related-links p > [data-language] { display: block; font-weight: 400; line-height: inherit; }
+html[data-reading-mode="bilingual"] .book-related-links p { color: var(--ink); font-size: .8rem; line-height: 1.65; }
+html[data-reading-mode="bilingual"] .book-related-links p > [data-language] { font-size: 1em; font-weight: 700; }
+html[data-reading-mode="bilingual"] .book-related-links p > [data-language="zh"] { font-weight: 600; }
 .book-related-links a { font-size: .75rem; font-weight: 700; }
 .book-related-arrow { position: absolute; right: .25rem; bottom: 2rem; font-size: 1.5rem; }
 main:has(> .book-related-links) + .site-footer { margin-top: 0; }
@@ -301,10 +307,11 @@ html[data-reading-mode="bilingual"] :is(.eyebrow, .library-label, .library-actio
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 
 /* Raw Typescript publishing system — 2026-09 layout edition */
-.book-hero { padding-block: clamp(3.5rem, 7vw, 7rem) clamp(4rem, 8vw, 7.5rem); }
+.book-hero { --book-hero-gap: clamp(4rem, 9vw, 9rem); position: relative; padding-block: clamp(3.5rem, 7vw, 7rem) clamp(4rem, 8vw, 7.5rem); }
+.book-hero::before { position: absolute; top: clamp(3.5rem, 7vw, 7rem); bottom: clamp(4rem, 8vw, 7.5rem); left: calc(64% - 1.75rem); width: 1px; background: var(--line); content: ""; }
 .book-register { width: min(100%, 34rem); margin-bottom: clamp(4rem, 8vw, 7.5rem); }
 .book-register dl > div { grid-template-columns: 10rem minmax(0, 1fr); }
-.book-hero-grid { display: grid; grid-template-columns: minmax(0, 1.28fr) minmax(18rem, .72fr); gap: clamp(4rem, 9vw, 9rem); align-items: end; }
+.book-hero-grid { display: grid; grid-template-columns: minmax(0, 1.28fr) minmax(18rem, .72fr); gap: var(--book-hero-gap); align-items: end; }
 .book-manifest { max-width: none; }
 .book-hero h1 { max-width: none; margin-block: 1.25rem 2rem; font-size: clamp(3.4rem, 5.4vw, 6rem); line-height: .9; overflow-wrap: normal; word-break: normal; }
 .book-hero h1 [lang="en"] { font-family: var(--mono); }
@@ -319,6 +326,8 @@ html[data-reading-mode="bilingual"] :is(.eyebrow, .library-label, .library-actio
 .book-action-cell { min-height: 10.5rem; padding-block: 1.75rem; }
 .book-action-cell :is(.primary-link, .secondary-link) { border-color: var(--ink); border-radius: 0; font-family: var(--mono); transition: none; }
 .book-action-cell :is(.primary-link, .secondary-link):hover { color: var(--paper); background: var(--ink); }
+.book-action-cell .primary-link { color: var(--paper); background: var(--ink); }
+.book-action-cell .primary-link:is(:hover, :focus-visible) { color: var(--ink); background: var(--paper); }
 .book-statement-copy [data-language="en"] { font-family: var(--mono); }
 .book-statement-copy [data-language="zh"] { font-family: var(--serif-zh); }
 
@@ -375,6 +384,7 @@ html[data-theme="dark"] .theme-toggle { color: var(--ink); background: transpare
 html[data-theme="dark"] .theme-toggle:hover { color: var(--sea); }
 
 @media (max-width: 68rem) {
+  .book-hero::before { display: none; }
   .book-hero-grid { grid-template-columns: 1fr; gap: 3.5rem; }
   .book-question { width: min(100%, 46rem); }
   .thought-anchor { position: static; display: block; width: max-content; margin-top: .6rem; opacity: .62; }
