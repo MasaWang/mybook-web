@@ -66,3 +66,17 @@ The current-book link remains without an underline. Its active-state color remai
 ## Verification result
 
 Passed against baseline `e894385`. The accepted reader-header layout, bilingual typography hierarchy, metadata treatment, navigation sizing, language selection, and theme controls are the visual invariants for subsequent framework upgrades.
+
+## Contents hierarchy verification — 2026-09-07
+
+- Reference: user-supplied 1502 × 1455 annotated contents screenshot.
+- Route: `/mybook-web/books/wisdom-sea/contents/`.
+- Scope: contents-page information hierarchy plus the reading-page previous/next navigation typography; manuscript, global header behavior, language switching, and theme logic are unchanged.
+- Desktop result: redundant book-title breadcrumb removed; the title-to-index transition is tighter; front matter is unnumbered; chapter numbers use stable two-digit values with a narrower number column; Part identifiers and titles share one typographic level; saved reading position is explicitly labeled `CURRENT / 目前閱讀`.
+- Bilingual result: Part headings follow the primary-source order (`Part I / Foundations / 基礎篇`) with explicit separator elements; the contents-page return link is a compact, unframed footer-adjacent action; previous/next navigation retains its position and structure while matching that action's 12.8 CSS px Courier typography and 700 weight.
+- Responsive result: the Part heading wraps without a stranded separator; front matter does not reserve a number column; current-position label and chapter arrow remain in distinct grid positions.
+- Modes checked: English, Traditional Chinese, bilingual, and bilingual dark mode.
+- Interaction regression checked: the saved current-reading row retains its dark hover background and switches its number, title, status label, and arrow to the light foreground color.
+- Build result: Astro check passed with 0 errors, 0 warnings, and 0 hints; publication validation passed for 35 pages and 35 bilingual pages.
+
+final result: passed

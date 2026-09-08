@@ -17,39 +17,48 @@ const groups = Object.entries(Object.groupBy(units, (unit) => unit.part)).map(([
   const partCode = partLabel.en.match(/^Part\s+[IVX]+$/iu)?.[0];
   const enSubtitle = partUnit ? partTitle.en.replace(/^Part\s+[IVX]+\s*·?\s*/iu, "") : "";
   const zhSubtitle = partCode ? (partUnit ? partTitle.zh : partLabel.zh).replace(/^Part\s+[IVX]+\s*·?\s*/iu, "") : "";
-  return { partLabel, partCode, partUnit, enSubtitle, zhSubtitle, items: items.filter((unit) => unit !== partUnit) };
+  const isFrontMatter = /^Front Matter$/iu.test(partLabel.en);
+  return { partLabel, partCode, partUnit, enSubtitle, zhSubtitle, isFrontMatter, items: items.filter((unit) => unit !== partUnit) };
 });
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 ---
 <BaseLayout title={`目錄｜${book.title}`} description={`${book.title}完整線上閱讀目錄。`}>
   <section class="contents shell">
-    <nav class="breadcrumbs" aria-label="Breadcrumb / 麵包屑"><a href={`${base}/books/${book.slug}/`}><span data-language="en">{book.titleEn}</span><span data-language="zh">{book.title}</span></a><span>/</span><span aria-current="page"><span data-language="en">CONTENTS</span><span data-language="zh">目錄</span></span></nav>
     <header><p class="eyebrow"><span data-language="en">INDEX / {units.length} ENTRIES</span><span data-language="zh">索引 / {units.length} 個條目</span></p><h1><span data-language="en">Contents</span><span data-language="zh">目錄</span></h1></header>
-    {groups.map(({ partLabel, partCode, partUnit, enSubtitle, zhSubtitle, items }) => (
-      <section class="contents-group">
+    {groups.map(({ partLabel, partCode, partUnit, enSubtitle, zhSubtitle, isFrontMatter, items }) => (
+      <section class:list={["contents-group", { "contents-front-matter": isFrontMatter }]}>
         <h2>
           {partUnit ? <a href={`${base}/books/${book.slug}/read/${partUnit.slug}/`}>
-            <span class="contents-part-name">{partCode ? <><span>{partCode}</span>{zhSubtitle && <span class="contents-part-zh" data-language="zh"> / {zhSubtitle}</span>}</> : <><span data-language="en">{partLabel.en}</span>{partLabel.zh && <span data-language="zh">{partLabel.zh}</span>}</>}</span>
-            <small>{enSubtitle && <span data-language="en">{enSubtitle}</span>}</small>
+            <span class="contents-part-name">{partCode ? <><span>{partCode}</span>{enSubtitle && <><span class="contents-part-separator" data-language="en" aria-hidden="true">/</span><span class="contents-part-en" data-language="en">{enSubtitle}</span></>}{zhSubtitle && <><span class="contents-part-separator" data-language="zh" aria-hidden="true">/</span><span class="contents-part-zh" data-language="zh">{zhSubtitle}</span></>}</> : <><span data-language="en">{partLabel.en}</span>{partLabel.en && partLabel.zh && <span class="bilingual-separator" aria-hidden="true"> / </span>}{partLabel.zh && <span data-language="zh">{partLabel.zh}</span>}</>}</span>
           </a> : <span class="contents-part-heading">
-            <span class="contents-part-name">{partCode ? <><span>{partCode}</span>{zhSubtitle && <span class="contents-part-zh" data-language="zh"> / {zhSubtitle}</span>}</> : <><span data-language="en">{partLabel.en}</span>{partLabel.zh && <span data-language="zh">{partLabel.zh}</span>}</>}</span>
+            <span class="contents-part-name">{partCode ? <><span>{partCode}</span>{enSubtitle && <><span class="contents-part-separator" data-language="en" aria-hidden="true">/</span><span class="contents-part-en" data-language="en">{enSubtitle}</span></>}{zhSubtitle && <><span class="contents-part-separator" data-language="zh" aria-hidden="true">/</span><span class="contents-part-zh" data-language="zh">{zhSubtitle}</span></>}</> : <><span data-language="en">{partLabel.en}</span>{partLabel.en && partLabel.zh && <span class="bilingual-separator" aria-hidden="true"> / </span>}{partLabel.zh && <span data-language="zh">{partLabel.zh}</span>}</>}</span>
           </span>}
         </h2>
         <ol>
           {items.map((unit) => {
             const title = splitBilingualLabel(unit.title);
             const chapter = title.en.match(/^Chapter\s+(\d+)\s*[·:—–-]\s*(.+)$/iu);
-            const number = chapter?.[1] ?? (unit.slug === "opening" ? "00" : unit.slug === "preface" ? "01" : "—");
+            const slugChapter = unit.slug.match(/^chapter-(\d+)$/u)?.[1];
+            const rawNumber = chapter?.[1] ?? slugChapter ?? (unit.slug === "opening" ? "00" : unit.slug === "preface" ? "01" : "—");
+            const number = /^\d+$/u.test(rawNumber) ? rawNumber.padStart(2, "0") : rawNumber;
             const titleEn = chapter?.[2] ?? title.en;
             return <li><a href={`${base}/books/${book.slug}/read/${unit.slug}/`} data-unit={unit.slug}>
-              <span class="contents-number">{number}</span>
+              {!isFrontMatter && <span class="contents-number">{number}</span>}
               <strong>{titleEn && <span lang="en" data-language="en">{titleEn}</span>}{(title.zh || unit.label) && <span lang="zh-Hant" data-language="zh">{title.zh || unit.label}</span>}</strong>
+              <span class="contents-current-label"><span data-language="en">CURRENT</span><span class="bilingual-separator" aria-hidden="true"> / </span><span data-language="zh">目前閱讀</span></span>
               <b aria-hidden="true">→</b>
             </a></li>;
           })}
         </ol>
       </section>
     ))}
+    <nav class="contents-return" aria-label="Book navigation / 書籍導覽">
+      <a href={`${base}/books/${book.slug}/`}>
+        <span data-language="en">← BACK TO BOOK</span>
+        <span class="bilingual-separator" aria-hidden="true"> / </span>
+        <span data-language="zh">返回書籍首頁</span>
+      </a>
+    </nav>
   </section>
   <script>
     const bookSlug = location.pathname.match(/\/books\/([^/]+)/)?.[1];
