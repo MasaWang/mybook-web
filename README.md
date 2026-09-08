@@ -4,6 +4,8 @@ OceanAI 的 Markdown-first 靜態數位出版網站。以書籍 manifest 驅動�
 
 公開網站：[https://masawang.github.io/mybook-web/](https://masawang.github.io/mybook-web/)
 
+用 Cursor 協助建置時，請依 [docs/cursor-build-workflow.md](docs/cursor-build-workflow.md)：書稿與網站分離、每項任務獨立分支、PR 合併。
+
 ## Local development
 
 ```bash
@@ -11,7 +13,7 @@ npm install
 npm run dev
 ```
 
-`npm run dev` 與 `npm run build` 會依 `src/books/*.json` 的設定，從 [`MasaWang/MYBOOK`](https://github.com/MasaWang/MYBOOK) 同步書稿；同步內容不提交至本 repository，MYBOOK 保持為權威內容源。
+`npm run dev` 與 `npm run build` 會依 `src/books/*.json` 的設定，從 [`MasaWang/MYBOOK-EDITORIAL`](https://github.com/MasaWang/MYBOOK-EDITORIAL) 同步書稿；同步內容寫入 `src/content-source/`，不提交至本 repository。書稿內容請在編輯庫修改，不要直接寫進本網站程式庫。
 
 ## Add a book
 
