@@ -56,10 +56,10 @@ a:focus-visible { outline: 3px solid var(--sea); outline-offset: 4px; }
 .shell { width: min(100%, var(--shell)); margin-inline: auto; padding-inline: var(--gutter); }
 .site-header { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: baseline; min-height: 8.75rem; padding-top: 5.3125rem; padding-bottom: .625rem; border-bottom: var(--rule); }
 .brand { display: inline-flex; height: 2.75rem; align-items: center; font-family: var(--mono); font-size: 1.5rem; font-weight: 700; letter-spacing: .04em; line-height: 2.75rem; text-decoration: none; }
-.site-header nav { display: flex; height: 2.75rem; align-items: center; justify-self: end; gap: 1.4rem; font-size: .86rem; }
+.site-header nav { display: flex; height: 2.75rem; align-items: center; justify-self: end; gap: 1rem; font-size: .86rem; }
 .site-header nav > a { display: inline-flex; height: 2.75rem; align-items: center; color: var(--ink); font-family: var(--mono); font-size: 1.125rem; font-weight: 400; line-height: 2.75rem; text-decoration: none; }
 .site-header nav > a [data-language="en"] { display: inline-block; font-weight: 700; transform: translateY(.25rem); }
-.site-header nav > a .bilingual-separator { display: inline-block; transform: translateY(.25rem); }
+html[data-reading-mode="bilingual"] .site-header nav > a .bilingual-separator { display: inline-block; transform: translateY(.25rem); }
 .site-header nav > a [data-language="zh"] { display: inline-block; transform: translateY(.25rem); }
 .site-header .book-title-latin { font-weight: 700; }
 .site-header nav a[aria-current="page"] { color: var(--ink); text-decoration: none; }
