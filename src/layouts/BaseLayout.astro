@@ -60,7 +60,7 @@ const jsonLd = structuredData ? JSON.stringify(structuredData).replace(/</g, "\\
     <header class="site-header shell">
       <a class="brand" href={`${base}/`}>OceanAI Books</a>
       <nav aria-label="主要導覽">
-        {books.map((book) => <a href={`${base}/books/${book.slug}/`} aria-current={Astro.url.pathname.includes(`/books/${book.slug}/`) ? "page" : undefined}><span data-language="en">{book.titleEn}</span><span class="bilingual-separator" aria-hidden="true"> / </span><span data-language="zh">{book.title}</span></a>)}
+        {books.map((book) => <a href={`${base}/books/${book.slug}/`} aria-current={Astro.url.pathname.includes(`/books/${book.slug}/`) ? "page" : undefined}><span data-language="en">{book.titleEn}</span><span class="bilingual-separator" aria-hidden="true"> / </span><span data-language="zh">{book.title.startsWith("OceanAI") ? <><span class="book-title-latin">OceanAI</span>{book.title.slice("OceanAI".length)}</> : book.title}</span></a>)}
         <div class="language-menu">
           <button class="language-trigger" type="button" aria-label="Language / 閱讀語言" aria-haspopup="listbox" aria-expanded="false">
             <Globe2 size={20} strokeWidth={1.5} aria-hidden="true" />
