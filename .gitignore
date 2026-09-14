@@ -5,3 +5,4 @@ dist/
 src/content-source/
 patches/
 .env.local
+tools/manuscript-studio/
