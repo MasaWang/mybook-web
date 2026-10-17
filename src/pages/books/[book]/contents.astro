@@ -1,6 +1,6 @@
 ---
 import BaseLayout from "../../../layouts/BaseLayout.astro";
-import { getBookManifests, getBookUnits, splitBilingualLabel, type BookManifest } from "../../../lib/book";
+import { getBookContents, getBookManifests, getBookUnits, splitBilingualLabel, type BookManifest } from "../../../lib/book";
 
 export function getStaticPaths() {
   return getBookManifests().map((book) => ({ params: { book: book.slug }, props: { book } }));
@@ -9,6 +9,8 @@ export function getStaticPaths() {
 interface Props { book: BookManifest }
 const { book } = Astro.props;
 const units = getBookUnits(book.slug);
+const outline = getBookContents(book.slug);
+const entryCount = outline?.reduce((count, part) => count + part.chapters.length, 0) ?? units.length;
 const groups = Object.entries(Object.groupBy(units, (unit) => unit.part)).map(([part, groupedUnits]) => {
   const items = groupedUnits ?? [];
   const partUnit = items.find((unit) => /^part-/u.test(unit.slug));
@@ -24,8 +26,27 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 ---
 <BaseLayout title={`目錄｜${book.title}`} description={`${book.title}完整線上閱讀目錄。`}>
   <section class="contents shell">
-    <header><p class="eyebrow"><span data-language="en">INDEX / {units.length} ENTRIES</span><span data-language="zh">索引 / {units.length} 個條目</span></p><h1><span data-language="en">Contents</span><span data-language="zh">目錄</span></h1></header>
-    {groups.map(({ partLabel, partCode, partUnit, enSubtitle, zhSubtitle, isFrontMatter, items }) => (
+    <header><p class="eyebrow"><span data-language="en">INDEX / {entryCount} ENTRIES</span><span data-language="zh">索引 / {entryCount} 個條目</span></p><h1><span data-language="en">Contents</span><span data-language="zh">目錄</span></h1></header>
+    {outline ? outline.map((part) => (
+      <section class="contents-group">
+        <h2>
+          <span class="contents-part-heading">
+            <span class="contents-part-name"><span>{part.code}</span><span class="contents-part-separator" data-language="en" aria-hidden="true">/</span><span class="contents-part-en" data-language="en">{part.en}</span><span class="contents-part-separator" data-language="zh" aria-hidden="true">/</span><span class="contents-part-zh" data-language="zh">{part.zhCode}{part.zh && <>——{part.zh}</>}</span></span>
+          </span>
+        </h2>
+        <ol>
+          {part.chapters.map((chapter) => {
+            const body = <>
+              <span class="contents-number"><span data-language="en">{chapter.number}</span><span data-language="zh">{chapter.zhNumber}</span></span>
+              <strong><span lang="en" data-language="en">{chapter.en}</span><span lang="zh-Hant" data-language="zh">{chapter.zh}</span></strong>
+              <span class="contents-current-label"><span data-language="en">CURRENT</span><span class="bilingual-separator" aria-hidden="true"> / </span><span data-language="zh">目前閱讀</span></span>
+              <b aria-hidden="true">{chapter.slug ? "→" : ""}</b>
+            </>;
+            return <li>{chapter.slug ? <a href={`${base}/books/${book.slug}/read/${chapter.slug}/`} data-unit={chapter.slug}>{body}</a> : <span class="contents-item">{body}</span>}</li>;
+          })}
+        </ol>
+      </section>
+    )) : groups.map(({ partLabel, partCode, partUnit, enSubtitle, zhSubtitle, isFrontMatter, items }) => (
       <section class:list={["contents-group", { "contents-front-matter": isFrontMatter }]}>
         <h2>
           {partUnit ? <a href={`${base}/books/${book.slug}/read/${partUnit.slug}/`}>

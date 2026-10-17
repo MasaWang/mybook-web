@@ -290,3 +290,62 @@ export function getBookUnits(bookSlug: string): ReadingUnit[] {
       return number(a) - number(b);
   });
 }
+
+export type ContentsChapter = {
+  number: string;
+  zhNumber: string;
+  en: string;
+  zh: string;
+  slug?: string;
+};
+
+export type ContentsPart = {
+  code: string;
+  en: string;
+  zhCode: string;
+  zh: string;
+  chapters: ContentsChapter[];
+};
+
+function splitBilingualName(value: string) {
+  const [head, ...rest] = value.split(/[—–－-]+/u).map((part) => part.trim()).filter(Boolean);
+  return { head: head ?? value.trim(), rest: rest.join("—") };
+}
+
+export function getBookContents(bookSlug: string): ContentsPart[] | undefined {
+  const sourceRoot = join(contentRoot, bookSlug);
+  const contentsPath = filesBelow(sourceRoot).find((path) => /Contents_目錄\.md$/u.test(basename(path)));
+  if (!contentsPath) return undefined;
+  const parts: ContentsPart[] = [];
+  let current: ContentsPart | undefined;
+  for (const line of readFileSync(contentsPath, "utf8").split("\n")) {
+    const part = line.match(/^##\s+Part\s+([IVX]+)\s+[—–-]\s+(.+?)｜\s*(.+?)\s*$/u);
+    if (part) {
+      const zh = splitBilingualName(part[3]);
+      current = { code: `Part ${part[1]}`, en: part[2].trim(), zhCode: zh.head, zh: zh.rest, chapters: [] };
+      parts.push(current);
+      continue;
+    }
+    const chapter = line.match(/^###\s+Chapter\s+(\d+)\s+[—–-]\s+(.+?)｜\s*(.+?)\s*$/u);
+    if (!chapter || !current) continue;
+    const zh = splitBilingualName(chapter[3]);
+    current.chapters.push({
+      number: chapter[1].padStart(2, "0"),
+      zhNumber: /^第.+章$/u.test(zh.head) ? zh.head : `第${chapter[1]}章`,
+      en: chapter[2].trim(),
+      zh: zh.rest || chapter[3].trim(),
+      slug: undefined,
+    });
+  }
+  if (!parts.length) return undefined;
+  const readable = new Map(
+    getBookUnits(bookSlug).flatMap((unit) => {
+      const number = unit.slug.match(/^chapter-(\d+)$/u)?.[1];
+      return number ? [[number.padStart(2, "0"), unit.slug] as const] : [];
+    }),
+  );
+  for (const part of parts) {
+    for (const chapter of part.chapters) chapter.slug = readable.get(chapter.number);
+  }
+  return parts;
+}
