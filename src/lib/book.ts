@@ -125,18 +125,28 @@ function promoteOpeningSectionHeadings(markdown: string) {
   );
 }
 
+function stripEditorialScaffold(markdown: string) {
+  if (!/^#{2,3}\s+英文版\s*$/m.test(markdown)) return markdown;
+  const start = markdown.search(/^##\s+(?:Chapter Opening｜|\d+\.\d+\s)/m);
+  const sliced = start >= 0 ? markdown.slice(start) : markdown;
+  return sliced
+    .split("\n")
+    .filter((line) => line.trim() !== "---" && !/^>\s/.test(line))
+    .join("\n");
+}
+
 function splitLanguages(markdown: string) {
   const sections: Record<"intro" | "en" | "zh", string[]> = { intro: [], en: [], zh: [] };
   let current: keyof typeof sections = "intro";
-  const hasExplicitLanguageMarkers = /^#{2,3}\s+(?:\*\*)?(?:EN|ZH|English Version|Chinese Version|English Source(?:｜American English)?|Traditional Chinese(?:｜繁體中文(?:等值稿)?)?)(?:\*\*)?\s*$/imu.test(markdown);
+  const hasExplicitLanguageMarkers = /^#{2,3}\s+(?:\*\*)?(?:EN|ZH|英文版|繁體中文版|English Version|Chinese Version|English Source(?:｜American English)?|Traditional Chinese(?:｜繁體中文(?:等值稿)?)?)(?:\*\*)?\s*$/imu.test(markdown);
 
   for (const line of markdown.split("\n")) {
-    const marker = line.match(/^#{2,3}\s+(?:\*\*)?(EN|ZH|English Version|Chinese Version|English Source(?:｜American English)?|Traditional Chinese(?:｜繁體中文(?:等值稿)?)?)(?:\*\*)?\s*$/i)?.[1]?.toLowerCase();
-    if (marker === "en" || marker === "english version" || marker?.startsWith("english source")) {
+    const marker = line.match(/^#{2,3}\s+(?:\*\*)?(EN|ZH|英文版|繁體中文版|English Version|Chinese Version|English Source(?:｜American English)?|Traditional Chinese(?:｜繁體中文(?:等值稿)?)?)(?:\*\*)?\s*$/i)?.[1]?.toLowerCase();
+    if (marker === "en" || marker === "英文版" || marker === "english version" || marker?.startsWith("english source")) {
       current = "en";
       continue;
     }
-    if (marker === "zh" || marker === "chinese version" || marker?.startsWith("traditional chinese")) {
+    if (marker === "zh" || marker === "繁體中文版" || marker === "chinese version" || marker?.startsWith("traditional chinese")) {
       current = "zh";
       continue;
     }
@@ -146,14 +156,16 @@ function splitLanguages(markdown: string) {
     }
     const bilingualHeading = line.match(/^(#{1,6}\s+)([^｜]+)｜(.+)$/u);
     if (bilingualHeading) {
-      if (current === "zh") {
+      if (hasExplicitLanguageMarkers) {
+        sections.en.push(`${bilingualHeading[1]}${bilingualHeading[2].trim()}`);
+        sections.zh.push(`${bilingualHeading[1]}${bilingualHeading[3].trim()}`);
+      } else if (current === "zh") {
         sections.zh.push(`${bilingualHeading[1]}${bilingualHeading[3].trim()}`);
       } else if (current === "en") {
         sections.en.push(`${bilingualHeading[1]}${bilingualHeading[2].trim()}`);
       } else {
         sections.en.push(`${bilingualHeading[1]}${bilingualHeading[2].trim()}`);
-        if (hasExplicitLanguageMarkers) sections.zh.push(`${bilingualHeading[1]}${bilingualHeading[3].trim()}`);
-        else current = "en";
+        current = "en";
       }
       continue;
     }
@@ -193,7 +205,7 @@ function splitCombinedPart(markdown: string) {
 }
 
 function makeUnit(markdown: string, fallback: string, slug: string, part: string, label: string): ReadingUnit {
-  const preparedMarkdown = prepareMarkdown(markdown);
+  const preparedMarkdown = stripEditorialScaffold(prepareMarkdown(markdown));
   const displayMarkdown = slug === "opening" ? promoteOpeningSectionHeadings(preparedMarkdown) : preparedMarkdown;
   const languages = splitLanguages(displayMarkdown);
   const words = displayMarkdown.replace(/[#>*_`\[\]()|-]/g, "").length;
@@ -229,7 +241,13 @@ function partLabel(sourceRoot: string, path: string) {
 export function getBookUnits(bookSlug: string): ReadingUnit[] {
   const sourceRoot = join(contentRoot, bookSlug);
   const candidates = filesBelow(sourceRoot)
-    .filter((path) => !/[\\/]完整版\.md$/.test(path) && !/[\\/]README\.md$/.test(path) && !/[\\/](?:00_)?Contents_目錄\.md$/.test(path))
+    .filter((path) => {
+      const rel = relative(sourceRoot, path);
+      if (/^(?:cursor文檔|舊稿材料|Part_0)[\\/]/.test(rel)) return false;
+      if (/00_章首\.md$/.test(rel)) return false;
+      if (!/(?:^|\/)(?:\d{2}_.+|Part_[IVX]+_.+)\.md$/.test(rel)) return false;
+      return !/[\\/]完整版\.md$/.test(path) && !/[\\/]README\.md$/.test(path) && !/[\\/](?:00_)?Contents_目錄\.md$/.test(path);
+    })
     .flatMap((sourcePath) => {
       const markdown = readFileSync(sourcePath, "utf8");
       const fallback = basename(sourcePath, ".md").replace(/^\d+_/, "").replace(/_/g, " ");
