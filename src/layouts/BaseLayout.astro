@@ -43,13 +43,13 @@ const jsonLd = structuredData ? JSON.stringify(structuredData).replace(/</g, "\\
         } catch {
           document.documentElement.dataset.theme = "light";
         }
-        const supportedModes = new Set(["en", "zh", "bilingual"]);
+        const supportedModes = new Set(["en", "zh"]);
         const requestedMode = new URLSearchParams(location.search).get("lang");
         let savedMode = null;
         try { savedMode = localStorage.getItem("oceanai-language"); } catch {}
         const mode = requestedMode && supportedModes.has(requestedMode)
           ? requestedMode
-          : savedMode && supportedModes.has(savedMode) ? savedMode : "bilingual";
+          : savedMode && supportedModes.has(savedMode) ? savedMode : "en";
         document.documentElement.dataset.readingMode = mode;
         document.documentElement.lang = mode === "en" ? "en" : "zh-Hant";
       })();
@@ -69,7 +69,6 @@ const jsonLd = structuredData ? JSON.stringify(structuredData).replace(/</g, "\\
           <div class="language-menu-panel" role="listbox" aria-label="Language / 閱讀語言" hidden>
             <button type="button" role="option" data-language-mode="en" aria-selected="false"><span class="language-option-label"><span lang="en">English</span></span><Check size={16} strokeWidth={1.75} aria-hidden="true" /></button>
             <button type="button" role="option" data-language-mode="zh" aria-selected="false"><span class="language-option-label"><span lang="en">Chinese (TW)</span></span><Check size={16} strokeWidth={1.75} aria-hidden="true" /></button>
-            <button type="button" role="option" data-language-mode="bilingual" aria-selected="false"><span class="language-option-label"><span lang="en">English</span><span class="language-option-separator" aria-hidden="true">+</span><span lang="en">Chinese (TW)</span></span><Check size={16} strokeWidth={1.75} aria-hidden="true" /></button>
           </div>
         </div>
         <button class="theme-toggle" type="button" aria-label="切換至深色模式">
@@ -132,7 +131,7 @@ const jsonLd = structuredData ? JSON.stringify(structuredData).replace(/</g, "\\
         languagePanel.hidden = true;
       };
       const setLanguageMode = (mode: string) => {
-        if (!new Set(["en", "zh", "bilingual"]).has(mode)) return;
+        if (!new Set(["en", "zh"]).has(mode)) return;
         document.documentElement.dataset.readingMode = mode;
         document.documentElement.lang = mode === "en" ? "en" : "zh-Hant";
         languageOptions.forEach((option) => option.setAttribute("aria-selected", String(option.dataset.languageMode === mode)));
@@ -140,7 +139,7 @@ const jsonLd = structuredData ? JSON.stringify(structuredData).replace(/</g, "\\
         updateThemeToggle();
         dispatchEvent(new CustomEvent("oceanai:languagechange", { detail: { mode } }));
       };
-      setLanguageMode(document.documentElement.dataset.readingMode ?? "bilingual");
+      setLanguageMode(document.documentElement.dataset.readingMode ?? "en");
       languageTrigger?.addEventListener("click", () => {
         if (!languagePanel) return;
         const open = languageTrigger.getAttribute("aria-expanded") === "true";
@@ -149,7 +148,7 @@ const jsonLd = structuredData ? JSON.stringify(structuredData).replace(/</g, "\\
         if (!open) languageOptions.find((option) => option.getAttribute("aria-selected") === "true")?.focus();
       });
       languageOptions.forEach((option) => option.addEventListener("click", () => {
-        setLanguageMode(option.dataset.languageMode ?? "bilingual");
+        setLanguageMode(option.dataset.languageMode ?? "en");
         closeLanguageMenu();
         languageTrigger?.focus();
       }));

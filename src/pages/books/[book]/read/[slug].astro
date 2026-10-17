@@ -44,6 +44,9 @@ const alternateLanguages = unit.hasBilingualContent ? [
 ] : [];
 const { en: displayTitleEn, zh: displayTitleZh } = splitBilingualLabel(unit.title);
 const localizedTitleZh = displayTitleZh || (unit.slug === "opening" ? "開篇" : unit.slug === "preface" ? "前言" : "");
+const headingTitleZh = /^chapter-\d+$/.test(unit.slug)
+  ? localizedTitleZh.replace(/^(第[零〇一二三四五六七八九十百千兩\d]+章)\s*——\s*/, "$1：")
+  : localizedTitleZh;
 const compactTitle = displayTitleEn.match(/^Chapter\s+\d+/)?.[0] ?? unit.label ?? displayTitleEn;
 const displayPart = splitBilingualLabel(unit.part);
 const previousTitle = previous ? splitBilingualLabel(previous.title) : undefined;
@@ -62,7 +65,7 @@ const nextTitle = next ? splitBilingualLabel(next.title) : undefined;
       </div>
       <h1 class:list={{ "bilingual-title": localizedTitleZh }}>
         <span class="title-en" lang="en" data-language="en">{displayTitleEn}</span>
-        {localizedTitleZh && <span class="title-zh" lang="zh-Hant" data-language="zh">{localizedTitleZh}</span>}
+        {headingTitleZh && <span class="title-zh" lang="zh-Hant" data-language="zh">{headingTitleZh}</span>}
       </h1>
     </header>
     <div class="reading-progress" aria-label={`閱讀單元 ${index + 1}，共 ${total} 個`}><span style={`width:${((index + 1) / total) * 100}%`}></span></div>
@@ -111,6 +114,20 @@ const nextTitle = next ? splitBilingualLabel(next.title) : undefined;
         const thoughtId = `${prefix}-${hashText(text)}`;
         block.id = thoughtId;
         block.classList.add("thought-block");
+        if (/^chapter-\d+$/.test(article.dataset.unit ?? "") && block.tagName === "H2" && block.closest('section[lang="zh-Hant"]') && block.firstChild?.nodeType === Node.TEXT_NODE) {
+          const firstText = block.firstChild as Text;
+          const sectionNumber = firstText.textContent?.match(/^(\d+(?:\.\d+)+)(\s+)/);
+          if (sectionNumber) {
+            const sectionTitle = document.createElement("span");
+            sectionTitle.className = "section-title";
+            sectionTitle.textContent = firstText.textContent?.slice(sectionNumber[0].length) ?? "";
+            firstText.remove();
+            const number = document.createElement("span");
+            number.className = "section-number";
+            number.textContent = sectionNumber[1];
+            block.prepend(number, sectionTitle);
+          }
+        }
         const anchor = document.createElement("a");
         anchor.className = "thought-anchor";
         anchor.href = `#${thoughtId}`;

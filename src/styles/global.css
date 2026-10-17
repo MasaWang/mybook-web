@@ -245,6 +245,9 @@ html[data-reading-mode="bilingual"] :is(.eyebrow, .library-label, .library-actio
 .prose h1, .prose h2, .prose h3 { max-width: 28ch; margin-top: 2.8em; font-family: var(--mono); font-weight: 700; line-height: 1.25; }
 .prose h1 { font-size: 2rem; }
 .prose h2 { font-size: 1.65rem; }
+.reader[data-unit^="chapter-"] .prose h2:has(.section-number) { display: flex; align-items: flex-end; gap: .3em; }
+.reader[data-unit^="chapter-"] .prose h2 .section-number { flex: none; font-size: 1.2em; line-height: 1; transform: translateY(.15em); }
+.reader[data-unit^="chapter-"] .prose h2 .section-title { line-height: 1; }
 .prose h3 { font-size: 1.3rem; }
 .prose blockquote { margin: 2.5rem 0; padding: .5rem 0 .5rem 1.5rem; border-left: 3px solid var(--sea); color: var(--quote); }
 .prose hr { margin: 4rem 0; border: 0; border-top: 1px solid var(--line); }
