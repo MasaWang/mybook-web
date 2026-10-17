@@ -125,6 +125,12 @@ function promoteOpeningSectionHeadings(markdown: string) {
   );
 }
 
+function headingWithSectionNumber(english: string, chinese: string) {
+  const number = english.match(/^(\d+(?:\.\d+)+)\b/)?.[1];
+  if (!number || chinese.startsWith(`${number} `) || chinese.startsWith(`${number}｜`)) return chinese;
+  return `${number} ${chinese}`;
+}
+
 function stripEditorialScaffold(markdown: string) {
   if (!/^#{2,3}\s+英文版\s*$/m.test(markdown)) return markdown;
   const start = markdown.search(/^##\s+(?:Chapter Opening｜|\d+\.\d+\s)/m);
@@ -156,15 +162,18 @@ function splitLanguages(markdown: string) {
     }
     const bilingualHeading = line.match(/^(#{1,6}\s+)([^｜]+)｜(.+)$/u);
     if (bilingualHeading) {
+      const marks = bilingualHeading[1];
+      const english = bilingualHeading[2].trim();
+      const chinese = headingWithSectionNumber(english, bilingualHeading[3].trim());
       if (hasExplicitLanguageMarkers) {
-        sections.en.push(`${bilingualHeading[1]}${bilingualHeading[2].trim()}`);
-        sections.zh.push(`${bilingualHeading[1]}${bilingualHeading[3].trim()}`);
+        sections.en.push(`${marks}${english}`);
+        sections.zh.push(`${marks}${chinese}`);
       } else if (current === "zh") {
-        sections.zh.push(`${bilingualHeading[1]}${bilingualHeading[3].trim()}`);
+        sections.zh.push(`${marks}${chinese}`);
       } else if (current === "en") {
-        sections.en.push(`${bilingualHeading[1]}${bilingualHeading[2].trim()}`);
+        sections.en.push(`${marks}${english}`);
       } else {
-        sections.en.push(`${bilingualHeading[1]}${bilingualHeading[2].trim()}`);
+        sections.en.push(`${marks}${english}`);
         current = "en";
       }
       continue;
