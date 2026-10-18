@@ -3,6 +3,7 @@
 ## Completed
 
 - 2026-09-08 — 精修頁眉語言選單：選項統一為 `English`、`Chinese (TW)`、`English + Chinese (TW)`；三列採相同高度與視覺中心，面板依英文標籤調整寬度並移除陰影；懸停／鍵盤焦點使用灰底白字，選中項及展開地球使用黑底白字與細灰內框。
+- 2026-10-18 — 第二章引言改為 “Human life gives us a measure by which to understand and judge the value of what we create.”／「引言：人的生活，為我們理解與判斷自身創造的價值提供了尺度。」
 - 2026-10-18 — 第一章章首前加上引言：「To create is to bring new possibilities into the world.」／「引言：創造，就是讓新的可能性進入世界。」
 - 2026-10-17 — 第一章中文章名改為「第一章｜我們為何創造」。章首不再另立標題。
 - 2026-10-17 — 第二章章首前的中文說明加上「引言：」，並加大字號。
