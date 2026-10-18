@@ -133,7 +133,7 @@ function headingWithSectionNumber(english: string, chinese: string) {
 
 function stripEditorialScaffold(markdown: string) {
   if (!/^#{2,3}\s+英文版\s*$/m.test(markdown)) return markdown;
-  const start = markdown.search(/^##\s+(?:Chapter Opening｜|\d+\.\d+\s)/m);
+  const start = markdown.search(/^##\s+(?:(?:Chapter )?Opening｜|\d+\.\d+\s)/m);
   const sliced = start >= 0 ? markdown.slice(start) : markdown;
   return sliced
     .split("\n")
