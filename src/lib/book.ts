@@ -134,7 +134,7 @@ function headingWithSectionNumber(english: string, chinese: string) {
 function markPreface(html: string) {
   const heading = html.search(/<h[1-6]\b/);
   if (heading <= 0) return html;
-  return html.slice(0, heading).replace(/<p>/g, '<p class="chapter-preface">') + html.slice(heading);
+  return html.slice(0, heading).replace(/<p>/, '<p class="chapter-preface">') + html.slice(heading);
 }
 
 function stripEditorialScaffold(markdown: string) {
