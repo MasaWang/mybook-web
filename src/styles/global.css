@@ -375,6 +375,7 @@ html[data-reading-mode="zh"] .reader h1.bilingual-title .title-zh { font-family:
 .prose > [lang="en"], .prose-intro { font-family: var(--mono); }
 .prose > [lang="zh-Hant"] { font-family: var(--reader-body-zh); font-size: 1.08em; letter-spacing: .018em; line-height: 1.95; }
 .prose p { margin-block: 0 1.45em; white-space: normal; }
+.prose .chapter-preface { font-size: 1.42em; line-height: 1.72; }
 .prose h1, .prose h2, .prose h3 { font-family: inherit; }
 .prose [data-language] + [data-language] { margin-top: 0; padding-top: 0; border-top: 0; }
 html[data-reading-mode="bilingual"] .prose section[lang="en"] + section[lang="zh"] { margin-top: 5rem; padding-top: 5rem; border-top: 1px solid var(--line); }
