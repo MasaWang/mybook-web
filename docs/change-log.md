@@ -2,6 +2,7 @@
 
 ## Completed
 
+- 2026-10-19 — 第四章候選稿 v4.5 上線，狀態仍為待審閱。引言、章首與 4.1–4.5 照來稿，未改句子。
 - 2026-10-18 — 第一章 v1.1：開場句改為粗體 “To create is to bring new possibilities into the world.”／「創造，就是讓新的可能性進入世界。」章首第一段末句改為 “Before these capabilities existed, people had to imagine what they might make possible.”／「在這些能力出現之前，人們必須先想像它們可能帶來什麼。」
 - 2026-09-08 — 精修頁眉語言選單：選項統一為 `English`、`Chinese (TW)`、`English + Chinese (TW)`；三列採相同高度與視覺中心，面板依英文標籤調整寬度並移除陰影；懸停／鍵盤焦點使用灰底白字，選中項及展開地球使用黑底白字與細灰內框。
 - 2026-10-18 — 第二章引言改為 “Human life gives us a measure by which to understand and judge the value of what we create.”／「引言：人的生活，為我們理解與判斷自身創造的價值提供了尺度。」
