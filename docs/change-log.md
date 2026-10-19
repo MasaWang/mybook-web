@@ -2,6 +2,7 @@
 
 ## Completed
 
+- 2026-10-19 — 第三章整章改為鎖定稿 v0.5，補上出版句、章首與 3.5。先前 3.1–3.4 不再作為現行正文。
 - 2026-10-19 — 第四章候選稿 v4.5 上線，狀態仍為待審閱。引言、章首與 4.1–4.5 照來稿，未改句子。
 - 2026-10-18 — 第一章 v1.1：開場句改為粗體 “To create is to bring new possibilities into the world.”／「創造，就是讓新的可能性進入世界。」章首第一段末句改為 “Before these capabilities existed, people had to imagine what they might make possible.”／「在這些能力出現之前，人們必須先想像它們可能帶來什麼。」
 - 2026-09-08 — 精修頁眉語言選單：選項統一為 `English`、`Chinese (TW)`、`English + Chinese (TW)`；三列採相同高度與視覺中心，面板依英文標籤調整寬度並移除陰影；懸停／鍵盤焦點使用灰底白字，選中項及展開地球使用黑底白字與細灰內框。
