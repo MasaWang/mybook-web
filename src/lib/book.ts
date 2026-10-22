@@ -219,9 +219,33 @@ function splitCombinedPart(markdown: string) {
   }));
 }
 
+function separateOpeningLanguages(markdown: string) {
+  const splitAt = markdown.search(/^#\s+開篇\s*$/m);
+  if (splitAt < 0) return markdown;
+  const english = markdown.slice(0, splitAt).replace(/^>.*\n?/gm, "").replace(/^---\s*\n?/gm, "").trim();
+  const chinese = markdown
+    .slice(splitAt)
+    .replace(/^(#{1,6}\s+)[^｜\n]+｜(.+)$/gm, "$1$2")
+    .split("\n")
+    .reduce<{ lines: string[]; previous: string }>((state, line) => {
+      const heading = line.match(/^#{1,6}\s+(.+)$/)?.[1]?.replace(/^[IVX]+\.\s+/, "");
+      if (heading) {
+        if (heading === state.previous) return state;
+        state.previous = heading;
+      } else if (line.trim()) state.previous = "";
+      state.lines.push(line);
+      return state;
+    }, { lines: [], previous: "" })
+    .lines.join("\n")
+    .trim();
+  return `### 英文版\n\n${english}\n\n### 繁體中文版\n\n${chinese}\n`;
+}
+
 function makeUnit(markdown: string, fallback: string, slug: string, part: string, label: string): ReadingUnit {
-  const preparedMarkdown = stripEditorialScaffold(prepareMarkdown(markdown));
-  const displayMarkdown = slug === "opening" ? promoteOpeningSectionHeadings(preparedMarkdown) : preparedMarkdown;
+  const preparedMarkdown = prepareMarkdown(markdown);
+  const displayMarkdown = slug === "opening"
+    ? separateOpeningLanguages(promoteOpeningSectionHeadings(preparedMarkdown))
+    : stripEditorialScaffold(preparedMarkdown);
   const languages = splitLanguages(displayMarkdown);
   const words = displayMarkdown.replace(/[#>*_`\[\]()|-]/g, "").length;
   return {
@@ -237,8 +261,8 @@ function makeUnit(markdown: string, fallback: string, slug: string, part: string
 
 function makeSlug(sourceRoot: string, path: string) {
   const rel = relative(sourceRoot, path);
-  if (rel === "01_Opening_開篇.md") return "opening";
-  if (rel === "02_Preface_前言.md") return "preface";
+  if (basename(path) === "01_Opening_開篇.md") return "opening";
+  if (basename(path) === "02_Preface_前言.md") return "preface";
   const flatPart = !rel.includes("/") ? rel.match(/^Part_([IVX]+)_/) : null;
   if (flatPart) return `part-${roman[flatPart[1]]}`;
   const part = rel.match(/Part_([IVX]+)/)?.[1];
@@ -258,7 +282,8 @@ export function getBookUnits(bookSlug: string): ReadingUnit[] {
   const candidates = filesBelow(sourceRoot)
     .filter((path) => {
       const rel = relative(sourceRoot, path);
-      if (/^(?:cursor文檔|舊稿材料|Part_0)[\\/]/.test(rel)) return false;
+      if (/^(?:cursor文檔|舊稿材料)[\\/]/.test(rel)) return false;
+      if (/^Part_0[\\/]/.test(rel) && basename(path) !== "01_Opening_開篇.md") return false;
       if (/00_章首\.md$/.test(rel)) return false;
       if (!/(?:^|\/)(?:\d{2}_.+|Part_[IVX]+_.+)\.md$/.test(rel)) return false;
       return !/[\\/]完整版\.md$/.test(path) && !/[\\/]README\.md$/.test(path) && !/[\\/](?:00_)?Contents_目錄\.md$/.test(path);
